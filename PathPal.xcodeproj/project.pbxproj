@@ -9,8 +9,13 @@
 /* Begin PBXBuildFile section */
 		0919EC702B3AC7360012F661 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 0919EC6F2B3AC7360012F661 /* Starscream */; };
 		0919EC732B3AC74C0012F661 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 0919EC722B3AC74C0012F661 /* ComposableArchitecture */; };
-		0919EC752B3AC76D0012F661 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC742B3AC76D0012F661 /* MapView.swift */; };
-		0919EC782B3AC7BE0012F661 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC772B3AC7BE0012F661 /* CameraView.swift */; };
+		0919EC752B3AC76D0012F661 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC742B3AC76D0012F661 /* Map.swift */; };
+		0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC772B3AC7BE0012F661 /* Camera.swift */; };
+		0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC7A2B3ACD990012F661 /* NavigationPage.swift */; };
+		0919EC7D2B3ACDF50012F661 /* VisionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC7C2B3ACDF50012F661 /* VisionPage.swift */; };
+		0919EC7F2B3ACE500012F661 /* SearchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC7E2B3ACE500012F661 /* SearchPage.swift */; };
+		0919EC812B3ACEAE0012F661 /* RouteModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC802B3ACEAE0012F661 /* RouteModal.swift */; };
+		0919EC832B3ACF640012F661 /* Compass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC822B3ACF640012F661 /* Compass.swift */; };
 		096CE2A62B3AC5B3001D0E2E /* PathPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096CE2A52B3AC5B3001D0E2E /* PathPalApp.swift */; };
 		096CE2A82B3AC5B3001D0E2E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096CE2A72B3AC5B3001D0E2E /* ContentView.swift */; };
 		096CE2AA2B3AC5B4001D0E2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 096CE2A92B3AC5B4001D0E2E /* Assets.xcassets */; };
@@ -19,10 +24,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0919EC742B3AC76D0012F661 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		0919EC742B3AC76D0012F661 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		0919EC762B3AC79B0012F661 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
-		0919EC772B3AC7BE0012F661 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		0919EC772B3AC7BE0012F661 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0919EC792B3AC8100012F661 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0919EC7A2B3ACD990012F661 /* NavigationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPage.swift; sourceTree = "<group>"; };
+		0919EC7C2B3ACDF50012F661 /* VisionPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionPage.swift; sourceTree = "<group>"; };
+		0919EC7E2B3ACE500012F661 /* SearchPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPage.swift; sourceTree = "<group>"; };
+		0919EC802B3ACEAE0012F661 /* RouteModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteModal.swift; sourceTree = "<group>"; };
+		0919EC822B3ACF640012F661 /* Compass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compass.swift; sourceTree = "<group>"; };
 		096CE2A22B3AC5B3001D0E2E /* PathPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PathPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		096CE2A52B3AC5B3001D0E2E /* PathPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathPalApp.swift; sourceTree = "<group>"; };
 		096CE2A72B3AC5B3001D0E2E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -50,7 +60,9 @@
 		0919EC6C2B3AC71D0012F661 /* Vision */ = {
 			isa = PBXGroup;
 			children = (
-				0919EC772B3AC7BE0012F661 /* CameraView.swift */,
+				0919EC7C2B3ACDF50012F661 /* VisionPage.swift */,
+				0919EC772B3AC7BE0012F661 /* Camera.swift */,
+				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
 			);
 			path = Vision;
 			sourceTree = "<group>";
@@ -58,7 +70,10 @@
 		0919EC6D2B3AC7230012F661 /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
-				0919EC742B3AC76D0012F661 /* MapView.swift */,
+				0919EC7A2B3ACD990012F661 /* NavigationPage.swift */,
+				0919EC742B3AC76D0012F661 /* Map.swift */,
+				0919EC7E2B3ACE500012F661 /* SearchPage.swift */,
+				0919EC822B3ACF640012F661 /* Compass.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -243,10 +258,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0919EC782B3AC7BE0012F661 /* CameraView.swift in Sources */,
+				0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */,
 				096CE2A82B3AC5B3001D0E2E /* ContentView.swift in Sources */,
-				0919EC752B3AC76D0012F661 /* MapView.swift in Sources */,
+				0919EC7D2B3ACDF50012F661 /* VisionPage.swift in Sources */,
+				0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */,
+				0919EC7F2B3ACE500012F661 /* SearchPage.swift in Sources */,
+				0919EC752B3AC76D0012F661 /* Map.swift in Sources */,
 				096CE2A62B3AC5B3001D0E2E /* PathPalApp.swift in Sources */,
+				0919EC812B3ACEAE0012F661 /* RouteModal.swift in Sources */,
+				0919EC832B3ACF640012F661 /* Compass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,7 +325,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -362,7 +382,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -392,7 +412,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -426,7 +446,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

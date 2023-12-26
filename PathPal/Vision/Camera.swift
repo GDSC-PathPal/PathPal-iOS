@@ -63,8 +63,9 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     }
     
     func setupWebSocket() {
-        if let baseURL = Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as? String {
-            var request = URLRequest(url: URL(string: baseURL)!) // 웹소켓 서버 URL
+        if let domain = Bundle.main.object(forInfoDictionaryKey: "DOMAIN") as? String {
+            print("DOMAIN : ", domain)
+            var request = URLRequest(url: URL(string: domain)!) // 웹소켓 서버 URL
             websocket = WebSocket(request: request)
             websocket.delegate = self
             websocket.connect()
