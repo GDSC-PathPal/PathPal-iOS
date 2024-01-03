@@ -7,11 +7,12 @@
 
 import SwiftUI
 
+
 struct ContentView: View {
     var body: some View {
         VStack {
             // TEST VIEW
-            Map()
+          CameraView()
             // 엔트리 뷰
             // 온보딩 뷰
             // NavigationPage() >> VisionPage()
