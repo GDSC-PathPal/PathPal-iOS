@@ -6,53 +6,60 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import AVFoundation
 import Starscream
+import Combine
 
-class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, WebSocketDelegate {
-        func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
-            switch event {
-            case .connected(let headers):
-                print("websocket is connected: \(headers)")
-            case .disconnected(let reason, let code):
-                print("websocket is disconnected: \(reason) with code: \(code)")
-            case .text(let string):
-                print("Received text: \(string)")
-            case .error(let error):
-                print("An error occurred: \(String(describing: error))")
-            default:
-                break
-            }
-        }
+let domain = Bundle.main.object(forInfoDictionaryKey: "DOMAIN") as? String ?? ""
+
+class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate, WebSocketDelegate {
+    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
+          switch event {
+          case .connected(let headers):
+              print("websocket is connected: \(headers)")
+          case .disconnected(let reason, let code):
+              print("websocket is disconnected: \(reason) with code: \(code)")
+          case .text(let string):
+              print("Received text: \(string)")
+          case .error(let error):
+              print("An error occurred: \(String(describing: error))")
+          default:
+              break
+          }
+      }
+    
+    let websocketURL = URL(string: "ws://\(domain)/socket")!
     
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
-    var videoOutput: AVCaptureVideoDataOutput!
     var websocket: WebSocket!
+    
+    var captureTimer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCaptureSession()
         setupWebSocket()
+        
+        // 타이머 설정: 1초마다 이미지 캡처 및 전송
+        captureTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(captureAndSendImage), userInfo: nil, repeats: true)
     }
     
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
-        captureSession.sessionPreset = .medium // 해상도 설정
+        captureSession.sessionPreset = .medium
         
         guard let backCamera = AVCaptureDevice.default(for: AVMediaType.video),
               let input = try? AVCaptureDeviceInput(device: backCamera) else { return }
         
         captureSession.addInput(input)
         
-        // 비디오 출력 설정
-        videoOutput = AVCaptureVideoDataOutput()
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
-        captureSession.addOutput(videoOutput)
+        let photoOutput = AVCapturePhotoOutput()
+        photoOutput.isHighResolutionCaptureEnabled = true // 고해상도 캡처 활성화
+        if captureSession.canAddOutput(photoOutput) {
+            captureSession.addOutput(photoOutput)
+        }
         
-        // 카메라 미리보기
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer.frame = view.frame
         view.layer.addSublayer(previewLayer)
@@ -63,27 +70,58 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     }
     
     func setupWebSocket() {
-        if let domain = Bundle.main.object(forInfoDictionaryKey: "DOMAIN") as? String {
-            print("DOMAIN : ", domain)
-            var request = URLRequest(url: URL(string: domain)!) // 웹소켓 서버 URL
-            websocket = WebSocket(request: request)
-            websocket.delegate = self
-            websocket.connect()
-        }
+        var request = URLRequest(url: websocketURL)
+        print(request)
+        websocket = WebSocket(request: request)
+        websocket.delegate = self
+        websocket.connect()
     }
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let ciImage = CIImage(cvImageBuffer: imageBuffer)
-        let context = CIContext()
+    @objc func captureAndSendImage() {
+        let photoSettings = AVCapturePhotoSettings()
+        photoSettings.isHighResolutionPhotoEnabled = true
         
-        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-            let image = UIImage(cgImage: cgImage)
+        capturePhoto(with: photoSettings)
+    }
+    
+    func capturePhoto(with settings: AVCapturePhotoSettings) {
+        guard let photoOutput = captureSession.outputs.first as? AVCapturePhotoOutput else { return }
+        
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+    
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        var imageData: Data?
+        
+        if let data = photo.fileDataRepresentation(),
+           let image = UIImage(data: data) {
+            let resizedImage = resizeImage(image, targetSize: CGSize(width: 480, height: 480))
             
-            if let jpegData = image.jpegData(compressionQuality: 0.5) {
-                // 이미지를 JPEG으로 인코딩하고 WebSocket을 통해 서버로 전송
-                websocket.write(data: jpegData)
+            if let jpegData = resizedImage.jpegData(compressionQuality: 0.3) {
+                imageData = jpegData
             }
+        }
+        
+        if let imageData = imageData {
+            websocket.write(data: imageData)
+        }
+    }
+
+    func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        let widthRatio = targetSize.width / size.width
+        let heightRatio = targetSize.height / size.height
+        let newSize: CGSize
+        
+        if widthRatio > heightRatio {
+            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+        } else {
+            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
+        }
+        
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { (context) in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
     
@@ -97,6 +135,10 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
             break
         }
     }
+    
+    deinit {
+        captureTimer?.invalidate()
+    }
 }
 
 struct CameraView: UIViewControllerRepresentable {
@@ -107,7 +149,4 @@ struct CameraView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
     
     typealias UIViewControllerType = CameraViewController
-}
-#Preview {
-    CameraView()
 }
