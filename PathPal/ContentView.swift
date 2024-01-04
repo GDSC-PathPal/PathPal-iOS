@@ -7,19 +7,40 @@
 
 import SwiftUI
 
+let screenWidth = UIScreen.main.bounds.width
+let screenHeight = UIScreen.main.bounds.height
 
 struct ContentView: View {
+    @State private var showLaunchScreen = true
+
     var body: some View {
-        VStack {
-            // TEST VIEW
-          CameraView()
-            // 엔트리 뷰
-            // 온보딩 뷰
-            // NavigationPage() >> VisionPage()
+        ZStack {
+            if showLaunchScreen {
+                LaunchScreen()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                showLaunchScreen = false // 런치 스크린을 숨기고
+                            }
+                        }
+                    }
+            } else {
+                NavigationPage()
+            }
         }
     }
 }
 
+struct LaunchScreen: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(Color.white)
+            Image("LogoWithText")
+        }
+        .ignoresSafeArea()
+    }
+}
 #Preview {
     ContentView()
 }

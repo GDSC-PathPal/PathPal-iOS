@@ -9,6 +9,7 @@ import SwiftUI
 import GoogleMaps
 import CoreLocation
 import Combine
+import GooglePlaces
 
 struct GoogleMapsView: UIViewRepresentable {
 
@@ -94,13 +95,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if let location = locations.last {
             lastLocation = location
             isLoading = false
-//          print("Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+          print("Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude)")
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-//      print("Heading updated: \(bearing)")
+      print("Heading updated: \(bearing)")
     }
 
 }

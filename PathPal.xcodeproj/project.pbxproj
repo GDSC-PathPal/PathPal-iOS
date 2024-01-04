@@ -20,6 +20,7 @@
 		096CE2A82B3AC5B3001D0E2E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096CE2A72B3AC5B3001D0E2E /* ContentView.swift */; };
 		096CE2AA2B3AC5B4001D0E2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 096CE2A92B3AC5B4001D0E2E /* Assets.xcassets */; };
 		096CE2AD2B3AC5B4001D0E2E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 096CE2AC2B3AC5B4001D0E2E /* Preview Assets.xcassets */; };
+		0974D4642B4571C000CA18E3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0974D4662B4571C000CA18E3 /* Localizable.strings */; };
 		BAEC2CB0F7A7D31CD5B83BEE /* Pods_PathPal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +39,7 @@
 		096CE2A72B3AC5B3001D0E2E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		096CE2A92B3AC5B4001D0E2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		096CE2AC2B3AC5B4001D0E2E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0974D4652B4571C000CA18E3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7C7B0305E9439FAEEAACBD55 /* Pods-PathPal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.debug.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.debug.xcconfig"; sourceTree = "<group>"; };
 		8343B3F5DA14839E495E7F27 /* Pods-PathPal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.release.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.release.xcconfig"; sourceTree = "<group>"; };
 		C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PathPal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,6 +109,7 @@
 				096CE2A72B3AC5B3001D0E2E /* ContentView.swift */,
 				0919EC6D2B3AC7230012F661 /* Navigation */,
 				0919EC6C2B3AC71D0012F661 /* Vision */,
+				0974D4662B4571C000CA18E3 /* Localizable.strings */,
 			);
 			path = PathPal;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				096CE2AD2B3AC5B4001D0E2E /* Preview Assets.xcassets in Resources */,
+				0974D4642B4571C000CA18E3 /* Localizable.strings in Resources */,
 				096CE2AA2B3AC5B4001D0E2E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,6 +275,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0974D4662B4571C000CA18E3 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0974D4652B4571C000CA18E3 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		096CE2AE2B3AC5B4001D0E2E /* Debug */ = {
@@ -394,7 +409,7 @@
 		};
 		096CE2B12B3AC5B4001D0E2E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0919EC762B3AC79B0012F661 /* Config.xcconfig */;
+			baseConfigurationReference = 7C7B0305E9439FAEEAACBD55 /* Pods-PathPal.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -429,7 +444,7 @@
 		};
 		096CE2B22B3AC5B4001D0E2E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0919EC762B3AC79B0012F661 /* Config.xcconfig */;
+			baseConfigurationReference = 8343B3F5DA14839E495E7F27 /* Pods-PathPal.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
