@@ -12,13 +12,13 @@ let screenHeight = UIScreen.main.bounds.height
 
 struct ContentView: View {
     @State private var showLaunchScreen = true
-
+    
     var body: some View {
         ZStack {
             if showLaunchScreen {
                 LaunchScreen()
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                             withAnimation {
                                 showLaunchScreen = false // 런치 스크린을 숨기고
                             }

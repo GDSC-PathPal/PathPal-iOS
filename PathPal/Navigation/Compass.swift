@@ -10,7 +10,7 @@ import SwiftUI
 struct Compass: View {
     var body: some View {
         VStack(spacing: 30) {
-                Text("출발 방향 맞추기")
+            Text("출발 방향 맞추기")
                 .foregroundStyle(Color.hex292929)
                 .font(.system(size: 19, weight: .semibold))
             // 안내 메세지

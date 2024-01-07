@@ -8,5 +8,6 @@ target 'PathPal' do
   # Pods for PathPal
   pod 'GoogleMaps'
   pod 'GooglePlaces', '8.3.0'
+  pod 'NMapsMap'
 
 end

@@ -4,7 +4,13 @@
 <dict>
 	<key>DOMAIN</key>
 	<string>${DOMAIN}</string>
+	<key>GOOGLE_DIRECTIONS_API_KEY</key>
+	<string>${GOOGLE_DIRECTIONS_API_KEY}</string>
 	<key>GOOGLE_MAPS_API_KEY</key>
 	<string>${GOOGLE_MAPS_API_KEY}</string>
+	<key>GOOGLE_PLACES_API_KEY</key>
+	<string>${GOOGLE_PLACES_API_KEY}</string>
+	<key>KAKAO_REST_API_KEY</key>
+	<string>${KAKAO_REST_API_KEY}</string>
 </dict>
 </plist>

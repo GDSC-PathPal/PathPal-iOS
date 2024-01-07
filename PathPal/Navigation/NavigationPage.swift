@@ -11,7 +11,6 @@ struct NavigationPage: View {
     
     var body: some View {
         NavigationStack {
-            
             // 출발지
             VStack(alignment: .leading) {
                 Text("출발지")
@@ -36,7 +35,7 @@ struct NavigationPage: View {
                 Text("도착지")
                     .font(.system(size: 18, weight: .semibold))
                 NavigationLink(destination: {
-                    //                SearchPage()
+                    SearchView()
                 }, label: {
                     RoundedRectangle(cornerRadius: 25.5)
                         .stroke(Color.hexBBD2FF)
