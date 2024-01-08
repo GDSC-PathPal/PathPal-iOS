@@ -11,6 +11,7 @@ let screenWidth = UIScreen.main.bounds.width
 let screenHeight = UIScreen.main.bounds.height
 
 struct ContentView: View {
+    @StateObject var mapVM: MapViewModel = MapViewModel()
     @State private var showLaunchScreen = true
     
     var body: some View {
@@ -25,7 +26,7 @@ struct ContentView: View {
                         }
                     }
             } else {
-                NavigationPage()
+                NavigationPage(mapVM: mapVM)
             }
         }
     }

@@ -9,8 +9,11 @@ import SwiftUI
 
 struct NavigationPage: View {
     
+    @ObservedObject var mapVM: MapViewModel
+    
     var body: some View {
         NavigationStack {
+            
             // 출발지
             VStack(alignment: .leading) {
                 Text("출발지")
@@ -20,9 +23,9 @@ struct NavigationPage: View {
                     .frame(width: screenWidth * 0.85, height: 43)
                     .overlay {
                         HStack {
-                            Text("현재 위치를 출발지로 설정 중")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.hex959595)
+                            Text(mapVM.isLoading ? "현재 위치를 출발지로 설정 중" : "현재 위치를 출발지로 설정 완료")
+                                .font(.system(size: 14, weight: mapVM.isLoading ? .regular : .medium))
+                                .foregroundColor(mapVM.isLoading ? .hex959595 : .hex292929)
                             Spacer()
                         }
                         .padding()
@@ -35,16 +38,22 @@ struct NavigationPage: View {
                 Text("도착지")
                     .font(.system(size: 18, weight: .semibold))
                 NavigationLink(destination: {
-                    SearchView()
+                    SearchView(mapVM: mapVM)
                 }, label: {
                     RoundedRectangle(cornerRadius: 25.5)
                         .stroke(Color.hexBBD2FF)
                         .frame(width: screenWidth * 0.85, height: 43)
                         .overlay {
                             HStack {
-                                Text("도착지 검색")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.hex959595)
+                                if mapVM.destination?.name == "" {
+                                    Text("도착지 검색")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Color.hex959595)
+                                } else {
+                                    Text(mapVM.destination?.name ?? "")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Color.hex292929)
+                                }
                                 Spacer()
                             }
                             .padding()
@@ -59,7 +68,6 @@ struct NavigationPage: View {
                 Text("경로 안내")
                     .foregroundStyle(Color.hex292929)
                     .font(.system(size: 18, weight: .semibold))
-                
                 
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.hexCECECE, lineWidth: 1)
@@ -96,5 +104,5 @@ struct NavigationPage: View {
 }
 
 #Preview {
-    NavigationPage()
+    NavigationPage(mapVM: MapViewModel())
 }

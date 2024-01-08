@@ -95,7 +95,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate, Web
         
         if let data = photo.fileDataRepresentation(),
            let image = UIImage(data: data) {
-            let resizedImage = resizeImage(image, targetSize: CGSize(width: 480, height: 480))
+            let resizedImage = resizeImage(image, targetSize: CGSize(width: 640, height: 640))
             
             if let jpegData = resizedImage.jpegData(compressionQuality: 0.3) {
                 imageData = jpegData

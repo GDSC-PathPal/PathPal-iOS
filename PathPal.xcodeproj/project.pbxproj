@@ -106,13 +106,13 @@
 				096CE2AB2B3AC5B4001D0E2E /* Preview Content */,
 				0919EC792B3AC8100012F661 /* Info.plist */,
 				0919EC762B3AC79B0012F661 /* Config.xcconfig */,
+				0974D4662B4571C000CA18E3 /* Localizable.strings */,
 				096CE2A92B3AC5B4001D0E2E /* Assets.xcassets */,
 				096CE2A52B3AC5B3001D0E2E /* PathPalApp.swift */,
 				0974D4672B492A1B00CA18E3 /* ResponseModel.swift */,
 				096CE2A72B3AC5B3001D0E2E /* ContentView.swift */,
 				0919EC6D2B3AC7230012F661 /* Navigation */,
 				0919EC6C2B3AC71D0012F661 /* Vision */,
-				0974D4662B4571C000CA18E3 /* Localizable.strings */,
 			);
 			path = PathPal;
 			sourceTree = "<group>";
