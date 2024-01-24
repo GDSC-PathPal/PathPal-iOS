@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DOMAIN</key>
+	<string>${DOMAIN}</string>
+	<key>GCLOUD_AUTH_ACCESS_TOKEN</key>
+	<string>${GCLOUD_AUTH_ACCESS_TOKEN}</string>
+	<key>GOOGLE_DIRECTIONS_API_KEY</key>
+	<string>${GOOGLE_DIRECTIONS_API_KEY}</string>
+	<key>GOOGLE_MAPS_API_KEY</key>
+	<string>${GOOGLE_MAPS_API_KEY}</string>
+	<key>GOOGLE_PLACES_API_KEY</key>
+	<string>${GOOGLE_PLACES_API_KEY}</string>
+	<key>GOOGLE_TTS_API_KEY</key>
+	<string>${GOOGLE_TTS_API_KEY}</string>
+	<key>TMAP_APP_KEY</key>
+	<string>${TMAP_APP_KEY}</string>
+</dict>
+</plist>

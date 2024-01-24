@@ -1,0 +1,91 @@
+google-cloud-sdk
+Podfile.lock
+# Ignore Custom Configuration Files
+Config.xcconfig
+
+# Created by https://www.toptal.com/developers/gitignore/api/cocoapods
+# Edit at https://www.toptal.com/developers/gitignore?templates=cocoapods
+
+### CocoaPods ###
+## CocoaPods GitIgnore Template
+
+# CocoaPods - Only use to conserve bandwidth / Save time on Pushing
+#           - Also handy if you have a large number of dependant pods
+#           - AS PER https://guides.cocoapods.org/using/using-cocoapods.html NEVER IGNORE THE LOCK FILE
+Pods/
+
+# End of https://www.toptal.com/developers/gitignore/api/cocoapods
+
+# Xcode
+##
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*`
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Xcode
+##
+build/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+IDEWorkspaceChecks.plist
+WorkspaceSettings.xcsettings
+
+# Swift Package Manager
+.build/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Code Injection
+injectionforxcode/
+
+# User interface state
+*.swp
+*.swo
+*~
+
+# OS X
+.DS_Store
+
+# Swift
+*.build
+
+# Others
+.svn
+CVS
+*.log
+
