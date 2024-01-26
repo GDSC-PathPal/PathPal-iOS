@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import GoogleMaps
 
 @main
 struct PathPalApp: App {
     init() {
-//        if let GOOGLE_MAPS_API_KEY = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_MAPS_API_KEY") as? String {
-//            GMSServices.provideAPIKey(GOOGLE_MAPS_API_KEY)
-//        }
+        if let GOOGLE_MAPS_API_KEY = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_MAPS_API_KEY") as? String {
+            GMSServices.provideAPIKey(GOOGLE_MAPS_API_KEY)
+        }
         //        if let GOOGLE_PLACES_API_KEY = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_PLACES_API_KEY") as? String {
         //            GMSPlacesClient.provideAPIKey(GOOGLE_PLACES_API_KEY)
         //        }

@@ -124,7 +124,8 @@ struct SearchView: View {
                 }
             }, receiveValue: { pois in
                     resultArray.removeAll()
-                    self.resultArray = pois                
+                mapVM.routeInstruction.removeAll()
+                    self.resultArray = pois
             })
             .store(in: &mapVM.cancellables)
     }

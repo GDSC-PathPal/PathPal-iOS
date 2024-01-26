@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import CoreLocation
 import Combine
+import GoogleMaps
 
 let TMAP_APP_KEY = Bundle.main.object(forInfoDictionaryKey: "TMAP_APP_KEY") as? String ?? ""
 
@@ -29,6 +30,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var routeInstruction: [String] = []
     
     var cancellables = Set<AnyCancellable>()
+    
+    //지도에 표시될 마커들
+    @Published var coordinatesForMap: [CLLocationCoordinate2D] = []
+
     
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
@@ -159,13 +164,16 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         
         self.routeInstruction = instructions
-        print("경로 문자열 : ", instructions)
     }
     
     func formatInstruction(description: String, turnType: Int) -> String {
         var instruction = description
 
 
+        // ~로 을
+        if instruction.contains("로 을") {
+            instruction = instruction.replacingOccurrences(of: "로 을", with: "로를")
+        }
         // 횡단보도 관련 문자열 예외처리
         if instruction.contains("횡단보도 후") {
             instruction = instruction.replacingOccurrences(of: "횡단보도 후", with: "횡단보도를 건넌 후")
@@ -307,5 +315,55 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         // 여기에 더 많은 도로 유형을 추가할 수 있습니다.
         default: return ""
         }
+    }
+    
+    func updateMapWithRoute(route: RouteResponse) {
+        let extractedCoordinates = extractCoordinatesFromRoute(route: route)
+        coordinatesForMap = extractedCoordinates
+    }
+}
+
+extension MapViewModel {
+    func extractCoordinatesFromRoute(route: RouteResponse) -> [CLLocationCoordinate2D] {
+        var coordinates = [CLLocationCoordinate2D]()
+        
+        for feature in route.features {
+            if feature.geometry.type == "Point",
+               let point = feature.geometry.coordinates as? [Double],
+               point.count == 2 {
+                let coordinate = CLLocationCoordinate2D(latitude: point[1], longitude: point[0])
+                coordinates.append(coordinate)
+            }
+        }
+        
+        return coordinates
+    }
+
+    func displayMarkersOnMap(coordinates: [CLLocationCoordinate2D], mapView: GMSMapView) {
+        for coordinate in coordinates {
+            let marker = GMSMarker(position: coordinate)
+            marker.map = mapView
+        }
+    }
+
+    func parseRouteCoordinates(routeResponse: RouteResponse) {
+        var routeCoordinates: [CLLocationCoordinate2D] = []
+
+        for feature in routeResponse.features {
+            switch feature.geometry.coordinates {
+            case .lineString(let lineCoordinates):
+                for coordinatePair in lineCoordinates {
+                    let coordinate = CLLocationCoordinate2D(latitude: coordinatePair[1], longitude: coordinatePair[0])
+                    routeCoordinates.append(coordinate)
+                }
+            default:
+                break // 'Point' 타입의 좌표는 무시합니다.
+            }
+        }
+
+        self.coordinatesForMap = routeCoordinates
+    
+    
+        print("지도 경로 표시를 위한 좌표 : ", routeCoordinates)
     }
 }

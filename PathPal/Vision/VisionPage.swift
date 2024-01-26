@@ -12,6 +12,7 @@ import AVFoundation
 
 
 struct VisionPage: View {
+    
     @StateObject private var speechService = SpeechService()
     var voiceType: VoiceType = .koreanFemale
 

@@ -26,9 +26,8 @@ struct ContentView: View {
                         }
                     }
             } else {
-//                NavigationPage(mapVM: mapVM)
-                VisionPage()
-//                CameraView()
+                NavigationPage(mapVM: mapVM)
+//                VisionPage()
 //                VisionView()
             }
         }

@@ -214,31 +214,42 @@ struct CameraView: UIViewControllerRepresentable {
 
 
 struct VisionView: View {
+    @ObservedObject var mapVM: MapViewModel
+
     @State private var showModal = false
-    @State private var cameraController: CameraViewController?
+    @State var cameraController: CameraViewController?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 50) {
             CameraView(cameraController: $cameraController)
                 .padding(.top, -100)
-
             Button(action: {
                 self.showModal = true
                 self.cameraController?.isModalPresented = true
-            }) {
-                Text("Open Route Modal")
-            }
+            }, label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .frame(width: screenWidth * 0.85, height: 50)
+                    .foregroundStyle(Color.hex246FFF)
+                    .overlay {
+                        Text("경로 다시보기")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(Color.white)
+                    }
+            })
             .sheet(isPresented: $showModal, onDismiss: {
                 self.cameraController?.isModalPresented = false
             }) {
-                RouteModal()
+                RouteModal(mapVM: mapVM, cameraController: $cameraController)
             }
+        }
+        .onDisappear {
+            cameraController?.stopCamera()
         }
     }
 }
 
 #Preview {
-    VisionView()
+    VisionView(mapVM: MapViewModel())
 }
 
 
