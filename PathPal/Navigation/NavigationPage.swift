@@ -27,7 +27,7 @@ struct NavigationPage: View {
                         .frame(width: screenWidth * 0.85, height: 50)
                         .overlay {
                             HStack {
-                                Text("현재 위치를 출발지로 설정 완료")
+                                Text(mapVM.isLoading ? "현재 위치 설정 중" : "현재 위치를 출발지로 설정 완료")
                                     .font(.system(size: 15, weight: mapVM.isLoading ? .regular : .medium))
                                     .foregroundColor(mapVM.isLoading ? .hex959595 : .hex292929)
                                 Spacer()

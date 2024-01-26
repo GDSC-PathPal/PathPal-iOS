@@ -11,12 +11,35 @@ import GoogleMaps
 struct MapView: View {
     
     @ObservedObject var mapVM = MapViewModel()
+    @State var showingPopup: Bool = false
 
     var body: some View {
-        GoogleMapsView(mapVM: mapVM)
-            .onAppear {
-                // 여기에 경로를 가져오는 등의 로직을 추가할 수 있습니다.
+        VStack {
+            Button(action: {
+                showingPopup = true
+            }, label: {
+                Text("compass")
+            })
+            ZStack {
+                
+                GoogleMapsView(mapVM: mapVM)
+                if showingPopup {
+                    VStack {
+                        Compass(mapVM: mapVM)
+                        
+                        Button("닫기") {
+                            showingPopup = false  // 팝업창을 닫습니다.
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .padding()
+                    .transition(.scale)  // 팝업창 등장 및 사라짐에 애니메이션 효과를 추가합니다.
+                }
             }
+        }
     }
 }
 

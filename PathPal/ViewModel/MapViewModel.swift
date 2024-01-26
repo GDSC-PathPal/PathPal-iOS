@@ -34,6 +34,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     //지도에 표시될 마커들
     @Published var coordinatesForMap: [CLLocationCoordinate2D] = []
 
+    //올바른 출발 방향 관련 변수
+    @Published var startHeading: Double?
+    @Published var isHeadingRightDirection: Bool = false
     
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
@@ -66,6 +69,17 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
         userHeading = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
         //      print("Heading updated: \(bearing)")
+        
+        // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
+        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 15) {
+            print(startHeading)
+            isHeadingRightDirection = true
+            print("올바른 방향입니다: \(isHeadingRightDirection)")
+            // 진동 트리거 (선택적)
+        } else {
+            isHeadingRightDirection = false
+        }
+
     }
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
@@ -317,9 +331,15 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
     
-    func updateMapWithRoute(route: RouteResponse) {
-        let extractedCoordinates = extractCoordinatesFromRoute(route: route)
-        coordinatesForMap = extractedCoordinates
+    func updateMapWithRoute() {
+        // 출발지와 첫 번째 경유지 사이의 방향 계산
+        print("coorinatesForMap: ", coordinatesForMap)
+        if coordinatesForMap.count >= 2 {
+            let start = coordinatesForMap[0]
+            let nextWaypoint = coordinatesForMap[1]
+            startHeading = calculateBearing(from: start, to: nextWaypoint)
+            print("startHEading : ", startHeading)
+        }
     }
 }
 
@@ -362,8 +382,38 @@ extension MapViewModel {
         }
 
         self.coordinatesForMap = routeCoordinates
-    
+        if coordinatesForMap.count >= 2 {
+            self.updateMapWithRoute()
+        }
     
         print("지도 경로 표시를 위한 좌표 : ", routeCoordinates)
+    }
+    
+    func calculateBearing(from start: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) -> Double {
+        
+        print("방향 계산 함수 호출")
+        let lat1 = start.latitude.toRadians()
+        let lon1 = start.longitude.toRadians()
+
+        let lat2 = destination.latitude.toRadians()
+        let lon2 = destination.longitude.toRadians()
+
+        let dLon = lon2 - lon1
+
+        let y = sin(dLon) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        let radiansBearing = atan2(y, x)
+
+        return radiansBearing.toDegrees()
+    }
+}
+
+// Double 타입 확장으로 라디안-도 변환 및 값 비교 메서드 추가
+extension Double {
+    func toRadians() -> Double { return self * .pi / 180 }
+    func toDegrees() -> Double { return self * 180 / .pi }
+
+    func isClose(to value: Double, within delta: Double) -> Bool {
+        return abs(self - value) <= delta
     }
 }
