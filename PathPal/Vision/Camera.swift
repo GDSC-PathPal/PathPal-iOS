@@ -17,30 +17,37 @@ struct ResponseModel: Codable {
 }
 
 struct responseTextModel: Codable {
-var text: String
+    var text: String
 }
 
 let domain = Bundle.main.object(forInfoDictionaryKey: "DOMAIN") as? String ?? ""
 
-
 class CameraViewController: UIViewController, WebSocketDelegate, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-
+    
     private var lastFrameTime = Date()
     private var speechService: SpeechService = SpeechService()
-
+    
     let websocketURL = URL(string: "ws://\(domain)/socket")!
     @Published var visionResponses: [ResponseModel] = []
     
-
+    
     var previewLayer: AVCaptureVideoPreviewLayer!
     var websocket: WebSocket!
-
+    
     var cancellables = Set<AnyCancellable>()
     let receivedDataSubject = PassthroughSubject<String, Never>()
-
-    var captureSession: AVCaptureSession?
     
-    var isModalPresented: Bool = false
+    var captureSession: AVCaptureSession?
+        
+    var isCameraActive: Bool = false {
+        didSet {
+            if isCameraActive {
+                startCamera()
+            } else {
+                stopCamera()
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,37 +57,50 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     }
     
     func startCamera() {
+        print("START CAMERA")
         if captureSession?.isRunning == false {
             captureSession?.startRunning()
         }
     }
-
+    
     func stopCamera() {
+        print("STOP CAMERA")
         if captureSession?.isRunning == true {
             captureSession?.stopRunning()
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        startCamera()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopCamera()
+    }
+
+    
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         captureSession?.sessionPreset = .medium
-
+        
         guard let backCamera = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: backCamera) else { return }
-
+        
         captureSession?.addInput(input)
-
+        
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.videoSettings = [(kCVPixelBufferPixelFormatTypeKey as String): NSNumber(value: kCVPixelFormatType_32BGRA)]
         videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
         if ((captureSession?.canAddOutput(videoOutput)) != nil) {
             captureSession?.addOutput(videoOutput)
         }
-
+        
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession ?? captureSession!)
         previewLayer.frame = view.bounds
         view.layer.addSublayer(previewLayer)
-
+        
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.captureSession?.startRunning()
         }
@@ -88,23 +108,22 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     
     func setupWebSocket() {
         var request = URLRequest(url: websocketURL)
+        request.setValue("60", forHTTPHeaderField: "time")
         websocket = WebSocket(request: request)
         websocket.delegate = self
         websocket.connect()
     }
-
+    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
-        guard !isModalPresented else { return }
-        
+                
         let currentTime = Date()
         if currentTime.timeIntervalSince(lastFrameTime) >= 1.0 {
             lastFrameTime = currentTime
             guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
-
+            
             let resizedImage = resizeImage(image, targetSize: CGSize(width: 640, height: 640))
-
-            if let jpegData = resizedImage.jpegData(compressionQuality: 0.5) {
+            
+            if let jpegData = resizedImage.jpegData(compressionQuality: 0.7) {
                 websocket.write(data: jpegData)
                 print("Image captured and sent: \(Date())") // 로그 출력
             } else {
@@ -112,34 +131,34 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
             }
         }
     }
-
+    
     private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return nil }
         let ciImage = CIImage(cvPixelBuffer: imageBuffer)
         let context = CIContext()
-
+        
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
         return UIImage(cgImage: cgImage)
     }
-
+    
     func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
         let size = image.size
         let widthRatio = targetSize.width / size.width
         let heightRatio = targetSize.height / size.height
         let newSize: CGSize
-
+        
         if widthRatio > heightRatio {
             newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
         } else {
             newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
         }
-
+        
         let renderer = UIGraphicsImageRenderer(size: newSize)
         return renderer.image { (context) in
             image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
-
+    
     func setupDataProcessing() {
         receivedDataSubject
             .flatMap(maxPublishers: .max(10)) { jsonString in
@@ -157,11 +176,11 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
             })
             .store(in: &cancellables)
     }
-
+    
     func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
         switch event {
         case .text(let string):
-//            print("Received text: \(string)")
+            //            print("Received text: \(string)")
             receivedDataSubject.send(string) // 받은 데이터를 Combine 스트림으로 전달
         case .disconnected(let reason, let code):
             print("WebSocket disconnected: \(reason) with code: \(code)")
@@ -173,13 +192,13 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
             break
         }
     }
-
+    
     func handleWebSocketResponse(_ jsonString: String) {
         guard let data = jsonString.data(using: .utf8) else {
             print("Error: Unable to convert received text to data")
             return
         }
-
+        
         do {
             let responseData = try JSONDecoder().decode([ResponseModel].self, from: data)
             self.visionResponses = responseData
@@ -188,7 +207,7 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
                 print("Korean: \(response.koreanTTSString)")
                 //테스트
                 speechService.speak(text: response.koreanTTSString)
-
+                
                 print("English: \(response.englishTTSString)")
                 print("Alert Needed: \(response.needAlert)")
             }
@@ -200,32 +219,40 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
 
 struct CameraView: UIViewControllerRepresentable {
     @Binding var cameraController: CameraViewController?
-
+    
     func makeUIViewController(context: Context) -> CameraViewController {
         let controller = CameraViewController()
         self.cameraController = controller
         return controller
     }
-
-    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
+    
+    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
+        // 필요한 경우 여기서 카메라 상태를 업데이트할 수 있습니다.
+        // 예를 들어, 외부 조건에 따라 startCamera 또는 stopCamera를 호출할 수 있습니다.
+    }
 
     typealias UIViewControllerType = CameraViewController
+    
 }
 
 
 struct VisionView: View {
     @ObservedObject var mapVM: MapViewModel
-
-    @State private var showModal = false
     @State var cameraController: CameraViewController?
-
+    
     var body: some View {
         VStack(spacing: 50) {
             CameraView(cameraController: $cameraController)
                 .padding(.top, -100)
-            Button(action: {
-                self.showModal = true
-                self.cameraController?.isModalPresented = true
+                .onAppear {
+                    cameraController?.startCamera()
+                }
+                .onDisappear {
+                    cameraController?.stopCamera()
+                }
+            
+            NavigationLink(destination: {
+                RouteModal(mapVM: mapVM)
             }, label: {
                 RoundedRectangle(cornerRadius: 8)
                     .frame(width: screenWidth * 0.85, height: 50)
@@ -235,12 +262,8 @@ struct VisionView: View {
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundStyle(Color.white)
                     }
+
             })
-            .sheet(isPresented: $showModal, onDismiss: {
-                self.cameraController?.isModalPresented = false
-            }) {
-                RouteModal(mapVM: mapVM, cameraController: $cameraController)
-            }
         }
         .onDisappear {
             cameraController?.stopCamera()
@@ -279,22 +302,22 @@ struct VisionView: View {
 
 
 //class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate, WebSocketDelegate, ObservableObject {
-//    
+//
 //    private var speechService: SpeechService = SpeechService()
-//        
+//
 //    let websocketURL = URL(string: "ws://\(domain)/socket")!
-//    
+//
 //    @Published var visionResponses: [ResponseModel] = []
-//    
+//
 //    var captureSession: AVCaptureSession!
 //    var previewLayer: AVCaptureVideoPreviewLayer!
 //    var websocket: WebSocket!
-//    
+//
 //    var cancellables = Set<AnyCancellable>()
 //    let receivedDataSubject = PassthroughSubject<String, Never>()
-//    
+//
 //    var captureTimer: Timer?
-//    
+//
 //    override func viewDidLoad() {
 //        super.viewDidLoad()
 //        setupCaptureSession()
@@ -304,63 +327,63 @@ struct VisionView: View {
 //        // 타이머 설정: 1초마다 이미지 캡처 및 전송
 //        captureTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(captureAndSendImage), userInfo: nil, repeats: true)
 //    }
-//    
+//
 //    func setupCaptureSession() {
 //        captureSession = AVCaptureSession()
 //        captureSession.sessionPreset = .medium
-//        
+//
 //        guard let backCamera = AVCaptureDevice.default(for: AVMediaType.video),
 //              let input = try? AVCaptureDeviceInput(device: backCamera) else { return }
-//        
+//
 //        captureSession.addInput(input)
-//        
+//
 //        let photoOutput = AVCapturePhotoOutput()
 //        photoOutput.isHighResolutionCaptureEnabled = true // 고해상도 캡처 활성화
 //        if captureSession.canAddOutput(photoOutput) {
 //            captureSession.addOutput(photoOutput)
 //        }
-//        
+//
 //        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 //        previewLayer.frame = view.frame
 //        view.layer.addSublayer(previewLayer)
-//        
+//
 //        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
 //            self?.captureSession.startRunning()
 //        }
 //    }
-//    
+//
 //    func setupWebSocket() {
 //        var request = URLRequest(url: websocketURL)
 //        websocket = WebSocket(request: request)
 //        websocket.delegate = self
 //        websocket.connect()
 //    }
-//    
+//
 //    @objc func captureAndSendImage() {
 //        let photoSettings = AVCapturePhotoSettings()
 //        photoSettings.isHighResolutionPhotoEnabled = true
-//        
+//
 //        capturePhoto(with: photoSettings)
 //    }
-//    
+//
 //    func capturePhoto(with settings: AVCapturePhotoSettings) {
 //        guard let photoOutput = captureSession.outputs.first as? AVCapturePhotoOutput else { return }
-//        
+//
 //        photoOutput.capturePhoto(with: settings, delegate: self)
 //    }
-//    
+//
 //    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 //        var imageData: Data?
-//        
+//
 //        if let data = photo.fileDataRepresentation(),
 //           let image = UIImage(data: data) {
 //            let resizedImage = resizeImage(image, targetSize: CGSize(width: 640, height: 640))
-//            
+//
 //            if let jpegData = resizedImage.jpegData(compressionQuality: 0.3) {
 //                imageData = jpegData
 //            }
 //        }
-//        
+//
 //        if let imageData = imageData {
 //            websocket.write(data: imageData)
 //        }
@@ -371,19 +394,19 @@ struct VisionView: View {
 //        let widthRatio = targetSize.width / size.width
 //        let heightRatio = targetSize.height / size.height
 //        let newSize: CGSize
-//        
+//
 //        if widthRatio > heightRatio {
 //            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
 //        } else {
 //            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
 //        }
-//        
+//
 //        let renderer = UIGraphicsImageRenderer(size: newSize)
 //        return renderer.image { (context) in
 //            image.draw(in: CGRect(origin: .zero, size: newSize))
 //        }
 //    }
-//    
+//
 //    func setupDataProcessing() {
 //        receivedDataSubject
 //            .flatMap(maxPublishers: .max(10)) { jsonString in
@@ -417,13 +440,13 @@ struct VisionView: View {
 //            break
 //        }
 //    }
-//    
+//
 //    func handleWebSocketResponse(_ jsonString: String) {
 //        guard let data = jsonString.data(using: .utf8) else {
 //            print("Error: Unable to convert received text to data")
 //            return
 //        }
-//         
+//
 //        do {
 //            let responseData = try JSONDecoder().decode([ResponseModel].self, from: data)
 //            self.visionResponses = responseData
@@ -432,7 +455,7 @@ struct VisionView: View {
 //                print("Korean: \(response.koreanTTSString)")
 //                //테스트
 //                speechService.speak(text: response.koreanTTSString)
-//                
+//
 //                print("English: \(response.englishTTSString)")
 //                print("Alert Needed: \(response.needAlert)")
 //            }
@@ -449,13 +472,13 @@ struct VisionView: View {
 //
 //
 //struct CameraView: UIViewControllerRepresentable {
-//        
+//
 //    func makeUIViewController(context: Context) -> CameraViewController {
 //        return CameraViewController()
 //    }
-//    
+//
 //    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
-//    
+//
 //    typealias UIViewControllerType = CameraViewController
 //}
 //

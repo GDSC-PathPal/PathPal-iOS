@@ -10,35 +10,12 @@ import GoogleMaps
 
 struct MapView: View {
     
-    @ObservedObject var mapVM = MapViewModel()
+    @ObservedObject var mapVM: MapViewModel
     @State var showingPopup: Bool = false
-
+    
     var body: some View {
         VStack {
-            Button(action: {
-                showingPopup = true
-            }, label: {
-                Text("compass")
-            })
-            ZStack {
-                
-                GoogleMapsView(mapVM: mapVM)
-                if showingPopup {
-                    VStack {
-                        Compass(mapVM: mapVM)
-                        
-                        Button("닫기") {
-                            showingPopup = false  // 팝업창을 닫습니다.
-                        }
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                    .padding()
-                    .transition(.scale)  // 팝업창 등장 및 사라짐에 애니메이션 효과를 추가합니다.
-                }
-            }
+            GoogleMapsView(mapVM: mapVM)
         }
     }
 }
@@ -46,12 +23,12 @@ struct MapView: View {
 struct GoogleMapsView: UIViewRepresentable {
     @ObservedObject var mapVM: MapViewModel
     @State private var didLoadInitialPosition = false
-
+    
     func makeUIView(context: Context) -> GMSMapView {
         let mapView = GMSMapView(frame: CGRect.zero)
         mapView.isMyLocationEnabled = true
         mapView.settings.myLocationButton = true
-
+        
         // 초기 카메라 위치를 사용자의 현재 위치로 설정
         if !didLoadInitialPosition {
             let camera = GMSCameraPosition.camera(withLatitude: mapVM.userLocation.coordinate.latitude,
@@ -60,18 +37,18 @@ struct GoogleMapsView: UIViewRepresentable {
             mapView.camera = camera
             didLoadInitialPosition = true
         }
-
+        
         return mapView
     }
-
+    
     func updateUIView(_ uiView: GMSMapView, context: Context) {
-
+        
         // 경로를 선으로 연결
         let path = GMSMutablePath()
         mapVM.coordinatesForMap.forEach { coordinate in
             path.add(coordinate)
         }
-
+        
         let polyline = GMSPolyline(path: path)
         polyline.strokeWidth = 5.0
         polyline.strokeColor = UIColor.hex246FFF
@@ -84,7 +61,7 @@ struct GoogleMapsView: UIViewRepresentable {
             startMarker.title = "출발지"
             startMarker.map = uiView
         }
-
+        
         // 도착지 마커 추가
         if let endLat = Double(mapVM.destination.noorLat ?? ""), let endLon = Double(mapVM.destination.noorLon ?? "") {
             let endCoordinate = CLLocationCoordinate2D(latitude: endLat, longitude: endLon)

@@ -8,12 +8,18 @@
 import SwiftUI
 import Combine
 
+enum SearchMode {
+    case startingPoint
+    case destination
+}
+
 struct NavigationPage: View {
     
     @ObservedObject var mapVM: MapViewModel
     @State private var errorMsg: String?
     var cancellables = Set<AnyCancellable>()
     @State var isFetched: Bool = false
+    @State var searchMode: SearchMode = .startingPoint
     
     var body: some View {
         NavigationStack {
@@ -22,18 +28,40 @@ struct NavigationPage: View {
                 VStack(alignment: .leading) {
                     Text("출발지")
                         .font(.system(size: 17, weight: .semibold))
-                    RoundedRectangle(cornerRadius: 25.5)
-                        .stroke(Color.hexBBD2FF)
-                        .frame(width: screenWidth * 0.85, height: 50)
-                        .overlay {
-                            HStack {
-                                Text(mapVM.isLoading ? "현재 위치 설정 중" : "현재 위치를 출발지로 설정 완료")
-                                    .font(.system(size: 15, weight: mapVM.isLoading ? .regular : .medium))
-                                    .foregroundColor(mapVM.isLoading ? .hex959595 : .hex292929)
-                                Spacer()
+                    NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
+                        RoundedRectangle(cornerRadius: 25.5)
+                            .stroke(Color.hexBBD2FF)
+                            .frame(width: screenWidth * 0.85, height: 50)
+                            .overlay {
+                                HStack {
+                                    if mapVM.startingPoint.name == "" {
+                                        Text("출발지 검색")
+                                            .font(.system(size: 15))
+                                            .foregroundStyle(Color.hex959595)
+                                    } else {
+                                        HStack {
+                                            Text(mapVM.startingPoint.name)
+                                                .font(.system(size: 15))
+                                                .foregroundStyle(Color.hex292929)
+                                            Spacer()
+                                            Button(action: {
+                                                mapVM.startingPoint.name = ""
+                                                mapVM.routeInstruction = []
+                                                isFetched = false
+                                            }, label: {
+                                                Image(systemName: "x.circle")
+                                            })
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                                .padding()
                             }
-                            .padding()
-                        }
+                    }
+                    .simultaneousGesture(TapGesture().onEnded {
+                        // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+                        searchMode = .startingPoint
+                    })
                 }
                 .padding(.bottom)
                 
@@ -41,9 +69,7 @@ struct NavigationPage: View {
                 VStack(alignment: .leading) {
                     Text("도착지")
                         .font(.system(size: 17, weight: .semibold))
-                    NavigationLink(destination: {
-                        SearchView(mapVM: mapVM)
-                    }, label: {
+                    NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
                         RoundedRectangle(cornerRadius: 25.5)
                             .stroke(Color.hexBBD2FF)
                             .frame(width: screenWidth * 0.85, height: 50)
@@ -72,9 +98,14 @@ struct NavigationPage: View {
                                 }
                                 .padding()
                             }
+                    }
+                    .simultaneousGesture(TapGesture().onEnded {
+                        // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+                        searchMode = .destination
                     })
-                }
+                }                
                 .padding(.bottom, 40)
+                
                 if !mapVM.isFetching && !isFetched && mapVM.routeInstruction == [] {
                     VStack {
                         Button(action: {
@@ -142,8 +173,7 @@ struct NavigationPage: View {
                             // 출발하기
                             VStack {
                                 NavigationLink(destination: {
-//                                    VisionView(mapVM: mapVM)
-                                    MapView(mapVM: mapVM)
+                                    Compass(mapVM: mapVM)
                                 }, label: {
                                     RoundedRectangle(cornerRadius: 8)
                                         .frame(width: screenWidth * 0.86, height: 50)
@@ -207,3 +237,23 @@ struct NavigationPage: View {
 #Preview {
     NavigationPage(mapVM: MapViewModel())
 }
+
+//출발지 = 현재위치 코드
+
+//                VStack(alignment: .leading) {
+//                    Text("출발지")
+//                        .font(.system(size: 17, weight: .semibold))
+//                    RoundedRectangle(cornerRadius: 25.5)
+//                        .stroke(Color.hexBBD2FF)
+//                        .frame(width: screenWidth * 0.85, height: 50)
+//                        .overlay {
+//                            HStack {
+//                                Text(mapVM.isLoading ? "현재 위치 설정 중" : "현재 위치를 출발지로 설정 완료")
+//                                    .font(.system(size: 15, weight: mapVM.isLoading ? .regular : .medium))
+//                                    .foregroundColor(mapVM.isLoading ? .hex959595 : .hex292929)
+//                                Spacer()
+//                            }
+//                            .padding()
+//                        }
+//                }
+//                .padding(.bottom)

@@ -23,6 +23,8 @@ struct SearchView: View {
     @State var resultArray: [PoiDetail] = []
     @State var responseArray: [PoiDetail] = []
     
+    @Binding var searchMode: SearchMode
+    
     var body: some View {
         VStack {
             VStack {
@@ -30,7 +32,7 @@ struct SearchView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .padding(.trailing)
-                    TextField("도착지 입력", text: $query)
+                    TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query)
                         .font(.system(size: 18))
                         .foregroundStyle(Color.hex959595)
                         .focused($focusTextField, equals: .textField)
@@ -70,7 +72,11 @@ struct SearchView: View {
                     }
                     .onTapGesture {
                         mapVM.skResponse?.searchPoiInfo.totalCount = "0"
-                        mapVM.destination = place
+                        if searchMode == .startingPoint {
+                            mapVM.startingPoint = place
+                        } else {
+                            mapVM.destination = place
+                        }
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
