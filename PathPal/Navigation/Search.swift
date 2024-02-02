@@ -32,10 +32,12 @@ struct SearchView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .padding(.trailing)
-                    TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query)
-                        .font(.system(size: 18))
-                        .foregroundStyle(Color.hex959595)
-                        .focused($focusTextField, equals: .textField)
+                    TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query, onCommit: {
+                        self.searchByKeyword(query: self.query, page: 1)
+                    })
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.hex959595)
+                    .focused($focusTextField, equals: .textField)
                     Spacer()
                     Button(action: {
                         self.searchByKeyword(query: self.query, page: 1)
@@ -98,6 +100,9 @@ struct SearchView: View {
         }
         .onAppear {
             self.focusTextField = .textField
+        }
+        .onDisappear {
+            resultArray.removeAll()
         }
     }
     

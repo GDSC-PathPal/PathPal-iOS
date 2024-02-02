@@ -13,7 +13,7 @@ import Combine
 struct ResponseModel: Codable {
     var koreanTTSString: String
     var englishTTSString: String
-    var needAlert: Bool
+    var needAlert: String
 }
 
 struct responseTextModel: Codable {
@@ -26,6 +26,8 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     
     private var lastFrameTime = Date()
     private var speechService: SpeechService = SpeechService()
+    
+    var totalTime: String = ""
     
     let websocketURL = URL(string: "ws://\(domain)/socket")!
     @Published var visionResponses: [ResponseModel] = []
@@ -52,7 +54,7 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCaptureSession()
-        setupWebSocket()
+        setupWebSocket(totalTime: totalTime)
         setupDataProcessing()
     }
     
@@ -106,9 +108,9 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         }
     }
     
-    func setupWebSocket() {
+    func setupWebSocket(totalTime: String) {
         var request = URLRequest(url: websocketURL)
-        request.setValue("60", forHTTPHeaderField: "time")
+        request.setValue(totalTime, forHTTPHeaderField: "time")
         websocket = WebSocket(request: request)
         websocket.delegate = self
         websocket.connect()
@@ -120,7 +122,7 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         if currentTime.timeIntervalSince(lastFrameTime) >= 1.0 {
             lastFrameTime = currentTime
             guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
-            
+                        
             let resizedImage = resizeImage(image, targetSize: CGSize(width: 640, height: 640))
             
             if let jpegData = resizedImage.jpegData(compressionQuality: 0.7) {
@@ -138,7 +140,10 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         let context = CIContext()
         
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
+        let image = UIImage(cgImage: cgImage)
+        
+        // 이미지를 오른쪽으로 90도 회전
+        return image.rotated(byDegrees: 90)
     }
     
     func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
@@ -205,11 +210,14 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
             print("비전 응답 : ", responseData)
             for response in responseData {
                 print("Korean: \(response.koreanTTSString)")
-                //테스트
-                speechService.speak(text: response.koreanTTSString)
-                
                 print("English: \(response.englishTTSString)")
                 print("Alert Needed: \(response.needAlert)")
+                //테스트
+                speechService.speak(text: response.koreanTTSString)
+                if response.needAlert == "true" {
+                    AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+                }
+
             }
         } catch {
             print("Error parsing JSON: \(error)")
@@ -232,7 +240,6 @@ struct CameraView: UIViewControllerRepresentable {
     }
 
     typealias UIViewControllerType = CameraViewController
-    
 }
 
 
@@ -265,6 +272,9 @@ struct VisionView: View {
 
             })
         }
+        .onAppear {
+            cameraController?.totalTime = mapVM.routeProperties?.totalTime?.description ?? ""
+        }
         .onDisappear {
             cameraController?.stopCamera()
         }
@@ -275,6 +285,35 @@ struct VisionView: View {
     VisionView(mapVM: MapViewModel())
 }
 
+
+extension UIImage {
+    func rotated(byDegrees degrees: CGFloat) -> UIImage? {
+        // 회전 각도를 라디안으로 변환
+        let radians = degrees * CGFloat.pi / 180
+        
+        // 그래픽스 컨텍스트 설정
+        var newSize = CGRect(origin: .zero, size: self.size).applying(CGAffineTransform(rotationAngle: radians)).size
+        // 확장된 이미지 사이즈에서 공백을 제거하기 위해 절대값 적용
+        newSize.width = floor(newSize.width)
+        newSize.height = floor(newSize.height)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, self.scale)
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+
+        // 변환을 위한 원점 조정
+        context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
+        context.rotate(by: radians)
+
+        // 이미지 그리기
+        self.draw(in: CGRect(x: -self.size.width / 2, y: -self.size.height / 2, width: self.size.width, height: self.size.height))
+        
+        // 생성된 이미지 가져오기
+        let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return rotatedImage
+    }
+}
 
 //struct PreviewView: UIViewRepresentable {
 //    var session: AVCaptureSession

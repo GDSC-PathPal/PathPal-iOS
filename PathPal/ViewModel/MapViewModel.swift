@@ -71,7 +71,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         //      print("Heading updated: \(bearing)")
         
         // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
-        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 30) {
+        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 100) {
             print(startHeading)
             isHeadingRightDirection = true
             print("올바른 방향입니다: \(isHeadingRightDirection)")
