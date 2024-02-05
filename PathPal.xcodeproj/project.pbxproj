@@ -12,12 +12,9 @@
 		0919EC752B3AC76D0012F661 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC742B3AC76D0012F661 /* Map.swift */; };
 		0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC772B3AC7BE0012F661 /* Camera.swift */; };
 		0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC7A2B3ACD990012F661 /* NavigationPage.swift */; };
-		0919EC7D2B3ACDF50012F661 /* VisionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC7C2B3ACDF50012F661 /* VisionPage.swift */; };
 		0919EC812B3ACEAE0012F661 /* RouteModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC802B3ACEAE0012F661 /* RouteModal.swift */; };
 		0919EC832B3ACF640012F661 /* Compass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC822B3ACF640012F661 /* Compass.swift */; };
 		092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092C717A2B578BDD00960DA5 /* GoogleTTS.swift */; };
-		092C717D2B57B89B00960DA5 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092C717C2B57B89B00960DA5 /* Route.swift */; };
-		092C717F2B58EA3400960DA5 /* InfoValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092C717E2B58EA3400960DA5 /* InfoValue.swift */; };
 		0955DB342B5F739900CC676F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB332B5F739900CC676F /* MapViewModel.swift */; };
 		0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB352B5F73BB00CC676F /* MapModel.swift */; };
 		0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB372B5F73F700CC676F /* SearchModel.swift */; };
@@ -37,12 +34,9 @@
 		0919EC772B3AC7BE0012F661 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0919EC792B3AC8100012F661 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0919EC7A2B3ACD990012F661 /* NavigationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPage.swift; sourceTree = "<group>"; };
-		0919EC7C2B3ACDF50012F661 /* VisionPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionPage.swift; sourceTree = "<group>"; };
 		0919EC802B3ACEAE0012F661 /* RouteModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteModal.swift; sourceTree = "<group>"; };
 		0919EC822B3ACF640012F661 /* Compass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compass.swift; sourceTree = "<group>"; };
 		092C717A2B578BDD00960DA5 /* GoogleTTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTTS.swift; sourceTree = "<group>"; };
-		092C717C2B57B89B00960DA5 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
-		092C717E2B58EA3400960DA5 /* InfoValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoValue.swift; sourceTree = "<group>"; };
 		0955DB332B5F739900CC676F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		0955DB352B5F73BB00CC676F /* MapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapModel.swift; sourceTree = "<group>"; };
 		0955DB372B5F73F700CC676F /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
@@ -76,10 +70,7 @@
 		0919EC6C2B3AC71D0012F661 /* Vision */ = {
 			isa = PBXGroup;
 			children = (
-				0919EC7C2B3ACDF50012F661 /* VisionPage.swift */,
 				0919EC772B3AC7BE0012F661 /* Camera.swift */,
-				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
-				092C717A2B578BDD00960DA5 /* GoogleTTS.swift */,
 			);
 			path = Vision;
 			sourceTree = "<group>";
@@ -91,7 +82,7 @@
 				0919EC742B3AC76D0012F661 /* Map.swift */,
 				0919EC822B3ACF640012F661 /* Compass.swift */,
 				097087A02B4AA413004766E3 /* Search.swift */,
-				092C717C2B57B89B00960DA5 /* Route.swift */,
+				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -100,8 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				0955DB332B5F739900CC676F /* MapViewModel.swift */,
-				0955DB352B5F73BB00CC676F /* MapModel.swift */,
-				0955DB372B5F73F700CC676F /* SearchModel.swift */,
+				092C717A2B578BDD00960DA5 /* GoogleTTS.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -133,12 +123,9 @@
 				0974D4662B4571C000CA18E3 /* Localizable.strings */,
 				096CE2A92B3AC5B4001D0E2E /* Assets.xcassets */,
 				096CE2A52B3AC5B3001D0E2E /* PathPalApp.swift */,
-				092C717E2B58EA3400960DA5 /* InfoValue.swift */,
-				096CE2A72B3AC5B3001D0E2E /* ContentView.swift */,
+				098E247C2B6CB7230003517F /* Model */,
 				0955DB322B5F737900CC676F /* ViewModel */,
-				0919EC6D2B3AC7230012F661 /* Navigation */,
-				0919EC6C2B3AC71D0012F661 /* Vision */,
-				098E24792B665C520003517F /* Review */,
+				098E247D2B6CB72E0003517F /* View */,
 			);
 			path = PathPal;
 			sourceTree = "<group>";
@@ -157,6 +144,26 @@
 				098E247A2B665C6D0003517F /* ReviewPage.swift */,
 			);
 			path = Review;
+			sourceTree = "<group>";
+		};
+		098E247C2B6CB7230003517F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0955DB352B5F73BB00CC676F /* MapModel.swift */,
+				0955DB372B5F73F700CC676F /* SearchModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		098E247D2B6CB72E0003517F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				096CE2A72B3AC5B3001D0E2E /* ContentView.swift */,
+				0919EC6D2B3AC7230012F661 /* Navigation */,
+				0919EC6C2B3AC71D0012F661 /* Vision */,
+				098E24792B665C520003517F /* Review */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		65F6D972121870160D4F8BEF /* Frameworks */ = {
@@ -319,13 +326,10 @@
 			files = (
 				092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */,
 				0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */,
-				092C717D2B57B89B00960DA5 /* Route.swift in Sources */,
 				0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */,
-				092C717F2B58EA3400960DA5 /* InfoValue.swift in Sources */,
 				0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */,
 				0955DB342B5F739900CC676F /* MapViewModel.swift in Sources */,
 				096CE2A82B3AC5B3001D0E2E /* ContentView.swift in Sources */,
-				0919EC7D2B3ACDF50012F661 /* VisionPage.swift in Sources */,
 				0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */,
 				098E247B2B665C6D0003517F /* ReviewPage.swift in Sources */,
 				0919EC752B3AC76D0012F661 /* Map.swift in Sources */,

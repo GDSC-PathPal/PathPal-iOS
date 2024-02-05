@@ -79,7 +79,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         } else {
             isHeadingRightDirection = false
         }
-
     }
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {

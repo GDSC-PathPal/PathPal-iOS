@@ -20,6 +20,7 @@ struct NavigationPage: View {
     var cancellables = Set<AnyCancellable>()
     @State var isFetched: Bool = false
     @State var searchMode: SearchMode = .startingPoint
+    @State var totalString: String = ""
     
     var body: some View {
         NavigationStack {
@@ -103,7 +104,7 @@ struct NavigationPage: View {
                         // NavigationLink가 활성화되기 전에 searchMode 값을 설정
                         searchMode = .destination
                     })
-                }                
+                }
                 .padding(.bottom, 40)
                 
                 if !mapVM.isFetching && !isFetched && mapVM.routeInstruction == [] {
@@ -127,73 +128,95 @@ struct NavigationPage: View {
                         if mapVM.isFetching {
                             Text("경로 찾는 중")
                         } else {
-                            //경로 안내
-                            VStack {
-                                Text("경로 안내")
-                                    .font(.system(size: 17, weight: .semibold))
-                                ScrollView {
-                                    HStack(spacing: 15) {
-                                        if let totalDistance = mapVM.routeProperties?.totalDistance, let totalTime = mapVM.routeProperties?.totalTime {
-                                            let time = "소요 시간 " + String(totalTime) + "초"
-                                            let distance = "총 거리 " + String(totalDistance) +
-                                            "m"
+                            if mapVM.routeInstruction == [] {
+                                Text("출발지와 도착지를 확인해주세요")
+                            } else {
+                                //경로 안내
+                                VStack {
+                                    Text("경로 안내")
+                                        .font(.system(size: 17, weight: .semibold))
+                                    ScrollView {
+                                        HStack(spacing: 15) {
                                             Image("PathPal")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(width: 15)
-                                            Text(distance)
-                                            Text(time)
+                                            Text(totalString)
                                             Spacer()
                                         }
-                                    }
-                                    .font(.system(size: 15.5, weight: .medium))
-                                    .padding(17)
-                                    .background(Color.hexF4F8FF)
-                                    VStack(alignment: .leading) {
-                                        ForEach(mapVM.routeInstruction, id: \.self) { route in
-                                            VStack(alignment: .leading) {
-                                                Text(route)
-                                                    .font(.system(size: 14.5))
+                                        .font(.system(size: 15.5, weight: .medium))
+                                        .padding(17)
+                                        .background(Color.hexF4F8FF)
+                                        VStack(alignment: .leading) {
+                                            ForEach(mapVM.routeInstruction, id: \.self) { route in
+                                                VStack(alignment: .leading) {
+                                                    Text(route)
+                                                        .font(.system(size: 14.5))
+                                                }
+                                                .padding(10)
+                                                Divider()
+                                                
                                             }
-                                            .padding(10)
-                                            Divider()
-                                            
                                         }
+                                        .padding(.horizontal, 10)
+                                        .padding(.bottom, 20)
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.bottom, 20)
+                                    .frame(width: screenWidth * 0.86, height: screenHeight * 0.37)
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.hex959595.opacity(0.7), lineWidth: 0.7)
+                                    }
                                 }
-                                .frame(width: screenWidth * 0.86, height: screenHeight * 0.37)
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.hex959595.opacity(0.7), lineWidth: 0.7)
+                                
+                                // 출발하기
+                                VStack {
+                                    NavigationLink(destination: {
+                                        Compass(mapVM: mapVM)
+                                    }, label: {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .frame(width: screenWidth * 0.86, height: 50)
+                                            .foregroundStyle(Color.hex246FFF)
+                                            .overlay {
+                                                Text("출발하기")
+                                                    .font(.system(size: 17, weight: .semibold))
+                                                    .foregroundStyle(Color.white)
+                                            }
+                                    })
                                 }
+                                .padding()
                             }
-
-                            // 출발하기
-                            VStack {
-                                NavigationLink(destination: {
-                                    Compass(mapVM: mapVM)
-                                }, label: {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .frame(width: screenWidth * 0.86, height: 50)
-                                        .foregroundStyle(Color.hex246FFF)
-                                        .overlay {
-                                            Text("출발하기")
-                                                .font(.system(size: 17, weight: .semibold))
-                                                .foregroundStyle(Color.white)
-                                        }
-                                })
-                            }
-                            .padding()
                         }
                     }
                     .padding(.top, -20)
                 }
-            Spacer()
+                Spacer()
             }
             .padding(.top, 60)
         }
+    }
+    
+    func formatDistanceAndTime(distanceInMeters: Int, timeInSeconds: Int) -> String {
+        let distance: String
+        let time: String
+        
+        // 거리 변환: 1000 미터 이상일 경우 km로 표시, 아니면 m로 표시
+        if distanceInMeters >= 1000 {
+            distance = String(format: "%.2f km", Double(distanceInMeters) / 1000.0)
+        } else {
+            distance = "\(distanceInMeters)m"
+        }
+        
+        // 시간 변환: 시간과 분으로 변환
+        let hours = timeInSeconds / 3600
+        let minutes = (timeInSeconds % 3600) / 60
+        
+        if hours > 0 {
+            time = "\(hours)시간" + (minutes > 0 ? " \(minutes)분" : "")
+        } else {
+            time = "\(minutes)분"
+        }
+        
+        return "총 거리: \(distance), 소요 시간: \(time)"
     }
     
     func fetchRoute() {
@@ -227,7 +250,7 @@ struct NavigationPage: View {
                 mapVM.routeProperties = data.features[0].properties
                 print("캐싱한 porperty 데이터", mapVM.routeProperties)
                 mapVM.generateNavigationInstructions(response: data)
-
+                totalString = formatDistanceAndTime(distanceInMeters: mapVM.routeProperties?.totalDistance ?? 0, timeInSeconds: mapVM.routeProperties?.totalTime ?? 0)
                 isFetched = true
             })
             .store(in: &mapVM.cancellables)

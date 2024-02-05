@@ -26,9 +26,8 @@ struct ContentView: View {
                         }
                     }
             } else {
-                NavigationPage(mapVM: mapVM)
-//                VisionPage()
-//                VisionView(mapVM: mapVM)
+//                NavigationPage(mapVM: mapVM)
+                VisionView(mapVM: mapVM)
             }
         }
     }

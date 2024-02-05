@@ -110,59 +110,49 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     
     func setupWebSocket(totalTime: String) {
         var request = URLRequest(url: websocketURL)
-        request.setValue(totalTime, forHTTPHeaderField: "time")
+        request.setValue("600", forHTTPHeaderField: "time")
+        print("토탈 타임!!!!!", totalTime)
         websocket = WebSocket(request: request)
         websocket.delegate = self
         websocket.connect()
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-                
-        let currentTime = Date()
-        if currentTime.timeIntervalSince(lastFrameTime) >= 1.0 {
-            lastFrameTime = currentTime
-            guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
-                        
-            let resizedImage = resizeImage(image, targetSize: CGSize(width: 640, height: 640))
-            
-            if let jpegData = resizedImage.jpegData(compressionQuality: 0.7) {
-                websocket.write(data: jpegData)
-                print("Image captured and sent: \(Date())") // 로그 출력
-            } else {
-                print("Failed to convert image to JPEG")
+            let currentTime = Date()
+            if currentTime.timeIntervalSince(lastFrameTime) >= 4.0 {
+                lastFrameTime = currentTime
+                guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
+
+                // 이미지를 640x640 크기로 조정 (scaleToFill)
+                let processedImage = scaleToFillImage(image, targetSize: CGSize(width: 640, height: 640))
+
+                if let jpegData = processedImage.jpegData(compressionQuality: 0.7) {
+                    websocket.write(data: jpegData)
+                    print("Image captured and sent: \(Date())")
+                } else {
+                    print("Failed to convert image to JPEG")
+                }
             }
         }
-    }
-    
-    private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return nil }
-        let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-        let context = CIContext()
-        
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
-        let image = UIImage(cgImage: cgImage)
-        
-        // 이미지를 오른쪽으로 90도 회전
-        return image.rotated(byDegrees: 90)
-    }
-    
-    func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
-        let size = image.size
-        let widthRatio = targetSize.width / size.width
-        let heightRatio = targetSize.height / size.height
-        let newSize: CGSize
-        
-        if widthRatio > heightRatio {
-            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
-        } else {
-            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
+
+        private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
+            guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return nil }
+            let ciImage = CIImage(cvPixelBuffer: imageBuffer)
+            let context = CIContext()
+
+            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
+            let image = UIImage(cgImage: cgImage)
+
+            // 이미지를 오른쪽으로 90도 회전
+            return image.rotated(byDegrees: 90)
         }
-        
-        let renderer = UIGraphicsImageRenderer(size: newSize)
-        return renderer.image { (context) in
-            image.draw(in: CGRect(origin: .zero, size: newSize))
+
+        private func scaleToFillImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: targetSize))
+            }
         }
-    }
     
     func setupDataProcessing() {
         receivedDataSubject
@@ -210,7 +200,6 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
             print("비전 응답 : ", responseData)
             for response in responseData {
                 print("Korean: \(response.koreanTTSString)")
-                print("English: \(response.englishTTSString)")
                 print("Alert Needed: \(response.needAlert)")
                 //테스트
                 speechService.speak(text: response.koreanTTSString)
