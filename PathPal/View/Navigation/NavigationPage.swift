@@ -80,7 +80,7 @@ struct NavigationPage: View {
                 VStack(alignment: .leading) {
                     Text("도착지")
                         .font(.system(size: 17, weight: .semibold))
-                    HStack {
+                    HStack(spacing: 15) {
                         //도착지 검색 버튼
                         NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.destination))) {
                             RoundedRectangle(cornerRadius: 25.5)
@@ -125,7 +125,7 @@ struct NavigationPage: View {
                             fetchRoute()
                         }, label: {
                             RoundedRectangle(cornerRadius: 25.5)
-                                .frame(width: screenWidth * 0.86, height: 50)
+                                .frame(width: screenWidth * 0.85, height: 50)
                                 .foregroundStyle(Color.hex246FFF)
                                 .overlay {
                                     Text("길찾기")
@@ -152,9 +152,19 @@ struct NavigationPage: View {
                                         NavigationLink(destination: {
                                             MapView(mapVM: mapVM)
                                         }, label: {
-                                            Text("지도 보기")
+                                                Text("지도 보기")
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(Color.hex454545)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 5)
+                                                .overlay {
+                                                    RoundedRectangle(cornerRadius: 14)
+                                                        .stroke(Color.hex292929, lineWidth: 0.5)
+                                                }
+                                                .clipShape(RoundedRectangle(cornerRadius: 14))
                                         })
                                     }
+                                    .frame(width: screenWidth * 0.86)
                                     ScrollView {
                                         HStack(spacing: 15) {
                                             Image("PathPal")
@@ -182,12 +192,13 @@ struct NavigationPage: View {
                                         .padding(.horizontal, 10)
                                         .padding(.bottom, 20)
                                     }
-                                    .frame(width: screenWidth * 0.86, height: screenHeight * 0.37)
+                                    .frame(width: screenWidth * 0.86, height: screenHeight * 0.4)
                                     .overlay {
                                         RoundedRectangle(cornerRadius: 10)
                                             .stroke(Color.hex959595.opacity(0.7), lineWidth: 0.7)
                                     }
                                 }
+                                .padding(.bottom)
                                 
                                 // 출발하기
                                 VStack {
@@ -204,7 +215,6 @@ struct NavigationPage: View {
                                             }
                                     })
                                 }
-                                .padding()
                             }
                         }
                     }
