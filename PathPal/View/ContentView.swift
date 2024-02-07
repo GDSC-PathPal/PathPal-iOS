@@ -19,15 +19,15 @@ struct ContentView: View {
             if showLaunchScreen {
                 LaunchScreen()
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             withAnimation {
                                 showLaunchScreen = false // 런치 스크린을 숨기고
                             }
                         }
                     }
             } else {
-                NavigationPage(mapVM: mapVM)
-//                VisionView(mapVM: mapVM)
+//                NavigationPage(mapVM: mapVM)
+                VisionView(mapVM: mapVM)
             }
         }
     }

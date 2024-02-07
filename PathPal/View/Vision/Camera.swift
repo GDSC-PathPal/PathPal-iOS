@@ -79,11 +79,10 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
-        captureSession?.sessionPreset = .medium
-        
+
         guard let backCamera = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: backCamera) else { return }
-        
+
         captureSession?.addInput(input)
         
         let videoOutput = AVCaptureVideoDataOutput()
@@ -95,6 +94,14 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession ?? captureSession!)
         previewLayer.frame = view.bounds
+        
+        //
+        previewLayer.videoGravity = .resizeAspectFill // 비율 유지하면서 채우기
+
+        // 프레임을 뷰의 중앙에 1:1 비율로 설정
+        let sideLength = min(view.bounds.width, view.bounds.height) // 가로와 세로 중 작은 값을 기준으로 함
+        previewLayer.frame = CGRect(x: (view.bounds.width - sideLength) / 2, y: (view.bounds.height - sideLength) / 2, width: sideLength, height: sideLength)
+
         view.layer.addSublayer(previewLayer)
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -102,32 +109,50 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         }
     }
     
+    private func cropToSquare(image: UIImage) -> UIImage? {
+        let originalWidth = image.size.width
+        let originalHeight = image.size.height
+        let cropSize = min(originalWidth, originalHeight)
+
+        let cropX = (originalWidth - cropSize) / 2
+        let cropY = (originalHeight - cropSize) / 2
+
+        let cropRect = CGRect(x: cropX, y: cropY, width: cropSize, height: cropSize)
+        if let imageCropped = image.cgImage?.cropping(to: cropRect) {
+            return UIImage(cgImage: imageCropped, scale: image.scale, orientation: image.imageOrientation)
+        }
+
+        return nil
+    }
+    
     func setupWebSocket(totalTime: String) {
         var request = URLRequest(url: websocketURL)
         request.setValue("600", forHTTPHeaderField: "time")
-        print("토탈 타임!!!!!", totalTime)
         websocket = WebSocket(request: request)
         websocket.delegate = self
         websocket.connect()
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-            let currentTime = Date()
-            if currentTime.timeIntervalSince(lastFrameTime) >= 4.0 {
-                lastFrameTime = currentTime
-                guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
+        let currentTime = Date()
+        if currentTime.timeIntervalSince(lastFrameTime) >= 4.0 {
+            lastFrameTime = currentTime
+            guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else { return }
 
-                // 이미지를 640x640 크기로 조정 (scaleToFill)
-                let processedImage = scaleToFillImage(image, targetSize: CGSize(width: 640, height: 640))
+            // 이미지를 중앙에서 1:1 비율로 자르기
+            guard let croppedImage = cropToSquare(image: image) else { return }
 
-                if let jpegData = processedImage.jpegData(compressionQuality: 0.7) {
-                    websocket.write(data: jpegData)
-                    print("Image captured and sent: \(Date())")
-                } else {
-                    print("Failed to convert image to JPEG")
-                }
+            // 자른 이미지를 640x640 크기로 조정
+            let processedImage = scaleToFillImage(croppedImage, targetSize: CGSize(width: 640, height: 640))
+
+            if let jpegData = processedImage.jpegData(compressionQuality: 0.7) {
+                websocket.write(data: jpegData)
+                print("Image captured and sent: \(Date())")
+            } else {
+                print("Failed to convert image to JPEG")
             }
         }
+    }
 
         private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
             guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return nil }
