@@ -29,40 +29,46 @@ struct NavigationPage: View {
                 VStack(alignment: .leading) {
                     Text("출발지")
                         .font(.system(size: 17, weight: .semibold))
-                    NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
-                        RoundedRectangle(cornerRadius: 25.5)
-                            .stroke(Color.hexBBD2FF)
-                            .frame(width: screenWidth * 0.85, height: 50)
-                            .overlay {
-                                HStack {
-                                    if mapVM.startingPoint.name == "" {
-                                        Text("출발지 검색")
-                                            .font(.system(size: 15))
-                                            .foregroundStyle(Color.hex959595)
-                                    } else {
-                                        HStack {
-                                            Text(mapVM.startingPoint.name)
+                    HStack(spacing: 15) {
+                        //출발지 검색 버튼
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
+                            RoundedRectangle(cornerRadius: 25.5)
+                                .stroke(Color.hexBBD2FF)
+                                .frame(width: screenWidth * 0.75, height: 50)
+                                .overlay {
+                                    HStack {
+                                        if mapVM.startingPoint.name == "" {
+                                            Text("출발지 검색")
                                                 .font(.system(size: 15))
-                                                .foregroundStyle(Color.hex292929)
-                                            Spacer()
-                                            Button(action: {
-                                                mapVM.startingPoint.name = ""
-                                                mapVM.routeInstruction = []
-                                                isFetched = false
-                                            }, label: {
-                                                Image(systemName: "x.circle")
-                                            })
+                                                .foregroundStyle(Color.hex959595)
+                                        } else {
+                                            HStack {
+                                                Text(mapVM.startingPoint.name)
+                                                    .font(.system(size: 15))
+                                                    .foregroundStyle(Color.hex292929)
+                                                Spacer()
+                                            }
                                         }
+                                        Spacer()
                                     }
-                                    Spacer()
+                                    .padding()
                                 }
-                                .padding()
-                            }
+                        }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+                            searchMode = .startingPoint
+                        })
+                        //출발지 검색어 초기화 버튼
+                        Button(action: {
+                            mapVM.startingPoint.name = ""
+                            mapVM.routeInstruction = []
+                            isFetched = false
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 25))
+                        })
+                        .accessibilityLabel(Text("출발지 초기화 버튼"))
                     }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-                        searchMode = .startingPoint
-                    })
                 }
                 .padding(.bottom)
                 
@@ -70,40 +76,47 @@ struct NavigationPage: View {
                 VStack(alignment: .leading) {
                     Text("도착지")
                         .font(.system(size: 17, weight: .semibold))
-                    NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
-                        RoundedRectangle(cornerRadius: 25.5)
-                            .stroke(Color.hexBBD2FF)
-                            .frame(width: screenWidth * 0.85, height: 50)
-                            .overlay {
-                                HStack {
-                                    if mapVM.destination.name == "" {
-                                        Text("도착지 검색")
-                                            .font(.system(size: 15))
-                                            .foregroundStyle(Color.hex959595)
-                                    } else {
-                                        HStack {
-                                            Text(mapVM.destination.name)
+                    HStack {
+                        //도착지 검색 버튼
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
+                            RoundedRectangle(cornerRadius: 25.5)
+                                .stroke(Color.hexBBD2FF)
+                                .frame(width: screenWidth * 0.85, height: 50)
+                                .overlay {
+                                    HStack {
+                                        if mapVM.destination.name == "" {
+                                            Text("도착지 검색")
                                                 .font(.system(size: 15))
-                                                .foregroundStyle(Color.hex292929)
-                                            Spacer()
-                                            Button(action: {
-                                                mapVM.destination.name = ""
-                                                mapVM.routeInstruction = []
-                                                isFetched = false
-                                            }, label: {
-                                                Image(systemName: "x.circle")
-                                            })
+                                                .foregroundStyle(Color.hex959595)
+                                        } else {
+                                            HStack {
+                                                Text(mapVM.destination.name)
+                                                    .font(.system(size: 15))
+                                                    .foregroundStyle(Color.hex292929)
+                                                Spacer()
+                                            }
                                         }
+                                        Spacer()
                                     }
-                                    Spacer()
+                                    .padding()
                                 }
-                                .padding()
-                            }
+                        }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+                            searchMode = .destination
+                        })
+                        //도착지 검색어 초기화 버튼
+                        Button(action: {
+                            mapVM.destination.name = ""
+                            mapVM.routeInstruction = []
+                            isFetched = false
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 25))
+
+                        })
+                        .accessibilityLabel(Text("도착지 초기화 버튼"))
                     }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-                        searchMode = .destination
-                    })
                 }
                 .padding(.bottom, 40)
                 
@@ -113,7 +126,7 @@ struct NavigationPage: View {
                             fetchRoute()
                         }, label: {
                             RoundedRectangle(cornerRadius: 25.5)
-                                .frame(width: screenWidth * 0.85, height: 50)
+                                .frame(width: screenWidth * 0.8, height: 50)
                                 .foregroundStyle(Color.hex246FFF)
                                 .overlay {
                                     Text("길찾기")

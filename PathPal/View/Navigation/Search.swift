@@ -32,12 +32,14 @@ struct SearchView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .padding(.trailing)
+                        .accessibilityHidden(true)
                     TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query, onCommit: {
                         self.searchByKeyword(query: self.query, page: 1)
                     })
                     .font(.system(size: 18))
                     .foregroundStyle(Color.hex959595)
                     .focused($focusTextField, equals: .textField)
+                    .accessibilityLabel(Text("여기에 검색할 출발지를 입력하세요"))
                     Spacer()
                     Button(action: {
                         self.searchByKeyword(query: self.query, page: 1)
@@ -52,6 +54,7 @@ struct SearchView: View {
                 Rectangle()
                     .frame(width: screenWidth, height: 1)
                     .foregroundStyle(Color.hexEFEFEF)
+                    .accessibilityHidden(true)
             }
             .padding(13)
             .padding(.top, 15)

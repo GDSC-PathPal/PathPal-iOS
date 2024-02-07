@@ -15,6 +15,7 @@
 		0919EC812B3ACEAE0012F661 /* RouteModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC802B3ACEAE0012F661 /* RouteModal.swift */; };
 		0919EC832B3ACF640012F661 /* Compass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC822B3ACF640012F661 /* Compass.swift */; };
 		092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092C717A2B578BDD00960DA5 /* GoogleTTS.swift */; };
+		092E0D792B73656600582459 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092E0D782B73656600582459 /* ResponseModel.swift */; };
 		0955DB342B5F739900CC676F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB332B5F739900CC676F /* MapViewModel.swift */; };
 		0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB352B5F73BB00CC676F /* MapModel.swift */; };
 		0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB372B5F73F700CC676F /* SearchModel.swift */; };
@@ -37,6 +38,8 @@
 		0919EC802B3ACEAE0012F661 /* RouteModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteModal.swift; sourceTree = "<group>"; };
 		0919EC822B3ACF640012F661 /* Compass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compass.swift; sourceTree = "<group>"; };
 		092C717A2B578BDD00960DA5 /* GoogleTTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTTS.swift; sourceTree = "<group>"; };
+		092E0D772B735ACF00582459 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		092E0D782B73656600582459 /* ResponseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseModel.swift; sourceTree = "<group>"; };
 		0955DB332B5F739900CC676F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		0955DB352B5F73BB00CC676F /* MapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapModel.swift; sourceTree = "<group>"; };
 		0955DB372B5F73F700CC676F /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
@@ -79,9 +82,9 @@
 			isa = PBXGroup;
 			children = (
 				0919EC7A2B3ACD990012F661 /* NavigationPage.swift */,
+				097087A02B4AA413004766E3 /* Search.swift */,
 				0919EC742B3AC76D0012F661 /* Map.swift */,
 				0919EC822B3ACF640012F661 /* Compass.swift */,
-				097087A02B4AA413004766E3 /* Search.swift */,
 				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
 			);
 			path = Navigation;
@@ -151,6 +154,7 @@
 			children = (
 				0955DB352B5F73BB00CC676F /* MapModel.swift */,
 				0955DB372B5F73F700CC676F /* SearchModel.swift */,
+				092E0D782B73656600582459 /* ResponseModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -227,11 +231,12 @@
 			};
 			buildConfigurationList = 096CE29D2B3AC5B3001D0E2E /* Build configuration list for PBXProject "PathPal" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = 096CE2992B3AC5B3001D0E2E;
 			packageReferences = (
@@ -328,6 +333,7 @@
 				0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */,
 				0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */,
 				0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */,
+				092E0D792B73656600582459 /* ResponseModel.swift in Sources */,
 				0955DB342B5F739900CC676F /* MapViewModel.swift in Sources */,
 				096CE2A82B3AC5B3001D0E2E /* ContentView.swift in Sources */,
 				0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */,
@@ -347,6 +353,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				0974D4652B4571C000CA18E3 /* en */,
+				092E0D772B735ACF00582459 /* ko */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -359,6 +366,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -422,6 +430,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
