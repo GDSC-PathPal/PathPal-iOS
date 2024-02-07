@@ -31,6 +31,7 @@ struct Compass: View {
                 .padding(.top, -30)
                 // 나침반
                 ZStack {
+
                     Image("CompassLine")
                         .resizable()
                         .scaledToFit()
@@ -49,6 +50,11 @@ struct Compass: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100)
+                    // 목표 방향을 가리키는 화살표
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 50))
+                        .foregroundColor(.red)
+                        .rotationEffect(.degrees(mapVM.startHeading ?? 0))
                 }
                 .accessibilityHidden(true)
                 NavigationLink(destination: VisionView(mapVM: mapVM), isActive: $navigateToVisionPage) {
