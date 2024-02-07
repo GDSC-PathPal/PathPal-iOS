@@ -22,6 +22,10 @@ struct NavigationPage: View {
     @State var searchMode: SearchMode = .startingPoint
     @State var totalString: String = ""
     
+    // NavigationLink의 활성화 상태를 추적하는 새로운 @State 변수들
+    @State private var isStartingPointActive = false
+    @State private var isDestinationActive = false
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -31,7 +35,7 @@ struct NavigationPage: View {
                         .font(.system(size: 17, weight: .semibold))
                     HStack(spacing: 15) {
                         //출발지 검색 버튼
-                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.startingPoint))) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
                                 .frame(width: screenWidth * 0.75, height: 50)
@@ -54,10 +58,10 @@ struct NavigationPage: View {
                                     .padding()
                                 }
                         }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-                            searchMode = .startingPoint
-                        })
+//                        .simultaneousGesture(TapGesture().onEnded {
+//                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+//                            searchMode = .startingPoint
+//                        })
                         //출발지 검색어 초기화 버튼
                         Button(action: {
                             mapVM.startingPoint.name = ""
@@ -65,7 +69,7 @@ struct NavigationPage: View {
                             isFetched = false
                         }, label: {
                             Image(systemName: "x.circle")
-                                .font(.system(size: 25))
+                                .font(.system(size: 20))
                         })
                         .accessibilityLabel(Text("출발지 초기화 버튼"))
                     }
@@ -78,10 +82,10 @@ struct NavigationPage: View {
                         .font(.system(size: 17, weight: .semibold))
                     HStack {
                         //도착지 검색 버튼
-                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: $searchMode)) {
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.destination))) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
-                                .frame(width: screenWidth * 0.85, height: 50)
+                                .frame(width: screenWidth * 0.75, height: 50)
                                 .overlay {
                                     HStack {
                                         if mapVM.destination.name == "" {
@@ -101,10 +105,6 @@ struct NavigationPage: View {
                                     .padding()
                                 }
                         }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-                            searchMode = .destination
-                        })
                         //도착지 검색어 초기화 버튼
                         Button(action: {
                             mapVM.destination.name = ""
@@ -112,8 +112,7 @@ struct NavigationPage: View {
                             isFetched = false
                         }, label: {
                             Image(systemName: "x.circle")
-                                .font(.system(size: 25))
-
+                                .font(.system(size: 20))
                         })
                         .accessibilityLabel(Text("도착지 초기화 버튼"))
                     }
@@ -126,7 +125,7 @@ struct NavigationPage: View {
                             fetchRoute()
                         }, label: {
                             RoundedRectangle(cornerRadius: 25.5)
-                                .frame(width: screenWidth * 0.8, height: 50)
+                                .frame(width: screenWidth * 0.86, height: 50)
                                 .foregroundStyle(Color.hex246FFF)
                                 .overlay {
                                     Text("길찾기")
@@ -146,14 +145,23 @@ struct NavigationPage: View {
                             } else {
                                 //경로 안내
                                 VStack {
-                                    Text("경로 안내")
-                                        .font(.system(size: 17, weight: .semibold))
+                                    HStack {
+                                        Text("경로 안내")
+                                            .font(.system(size: 17, weight: .semibold))
+                                        Spacer()
+                                        NavigationLink(destination: {
+                                            MapView(mapVM: mapVM)
+                                        }, label: {
+                                            Text("지도 보기")
+                                        })
+                                    }
                                     ScrollView {
                                         HStack(spacing: 15) {
                                             Image("PathPal")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(width: 15)
+                                                .accessibilityHidden(true)
                                             Text(totalString)
                                             Spacer()
                                         }

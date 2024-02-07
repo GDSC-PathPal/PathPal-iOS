@@ -25,6 +25,7 @@ struct RouteModal: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 15)
+                                .accessibilityHidden(true)
                             Text(distance)
                             Text(time)
                             Spacer()

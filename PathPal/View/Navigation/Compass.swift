@@ -50,7 +50,7 @@ struct Compass: View {
                         .scaledToFit()
                         .frame(width: 100)
                 }
-                
+                .accessibilityHidden(true)
                 NavigationLink(destination: VisionView(mapVM: mapVM), isActive: $navigateToVisionPage) {
                     EmptyView()
                 }

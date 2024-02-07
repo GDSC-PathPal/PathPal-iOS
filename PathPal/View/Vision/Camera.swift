@@ -10,6 +10,7 @@ import AVFoundation
 import Starscream
 import Combine
 
+
 struct responseTextModel: Codable {
     var text: String
 }
@@ -24,7 +25,7 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
     var totalTime: String = ""
     
     let websocketURL = URL(string: "ws://\(domain)/socket")!
-    @Published var visionResponse: ResponseModel = ResponseModel()
+    @Published var visionResponses: [ResponseModel] = []
     
     var previewLayer: AVCaptureVideoPreviewLayer!
     var websocket: WebSocket!
@@ -188,15 +189,18 @@ class CameraViewController: UIViewController, WebSocketDelegate, ObservableObjec
         }
         
         do {
-            let responseData = try JSONDecoder().decode(ResponseModel.self, from: data)
-            self.visionResponse = responseData
+            let responseData = try JSONDecoder().decode([ResponseModel].self, from: data)
+            self.visionResponses = responseData
             print("비전 응답 : ", responseData)
-                print("Korean: \(responseData.koreanTTSString)")
-                print("Alert Needed: \(responseData.needAlert)")
+            for response in responseData {
+                print("Korean: \(response.koreanTTSString)")
+                print("Alert Needed: \(response.needAlert)")
                 //테스트
-                speechService.speak(text: responseData.koreanTTSString)
-                if responseData.needAlert == "true" {
+                speechService.speak(text: response.koreanTTSString)
+                if response.needAlert == "true" {
                     AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+                }
+
             }
         } catch {
             print("Error parsing JSON: \(error)")

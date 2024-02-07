@@ -7,6 +7,6 @@
 
 struct ResponseModel: Codable {
     var koreanTTSString: String = ""
-    var englishTTSString: String = ""
+    var englishTTSString: String?
     var needAlert: String = ""
 }

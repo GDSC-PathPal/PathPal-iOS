@@ -83,8 +83,8 @@
 			children = (
 				0919EC7A2B3ACD990012F661 /* NavigationPage.swift */,
 				097087A02B4AA413004766E3 /* Search.swift */,
-				0919EC742B3AC76D0012F661 /* Map.swift */,
 				0919EC822B3ACF640012F661 /* Compass.swift */,
+				0919EC742B3AC76D0012F661 /* Map.swift */,
 				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
 			);
 			path = Navigation;
