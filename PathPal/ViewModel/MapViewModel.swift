@@ -72,10 +72,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
         //오차 범위
-        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 5) {
+        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 300) {
             print(startHeading)
             isHeadingRightDirection = true
-            print("올바른 방향입니다: \(isHeadingRightDirection)")
             // 진동 트리거 (선택적)
         } else {
             isHeadingRightDirection = false
@@ -86,7 +85,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         return Future { promise in
             let targetUrl = "https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=\(query)&searchType=all&page=\(page)&count=15&resCoordType=WGS84GEO&multiPoint=N&searchtypCd=R&radius=0&reqCoordType=WGS84GEO&poiGroupYn=N&centerLon=\(longitude)&centerLat=\(latitude)"
             
-            print(targetUrl)
             let encodedUrl = targetUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
             
             guard let url = URL(string: encodedUrl) else {

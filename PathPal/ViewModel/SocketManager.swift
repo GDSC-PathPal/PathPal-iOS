@@ -66,9 +66,9 @@ class SocketManager: ObservableObject, WebSocketDelegate {
             break
         }
     }
-
     
     func setupWebSocket(totalTime: String) {
+        print("웹 소켓 connection 함수 호출")
         var request = URLRequest(url: websocketURL)
         request.setValue("600", forHTTPHeaderField: "time")
         websocket = WebSocket(request: request)

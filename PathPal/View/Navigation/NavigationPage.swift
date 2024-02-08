@@ -230,6 +230,7 @@ struct NavigationPage: View {
             socketManager.setupDataProcessing()
         })
         .onDisappear(perform: {
+            print("웹 소켓 disconnection 함수 호출")
             socketManager.websocket.disconnect()
         })
     }

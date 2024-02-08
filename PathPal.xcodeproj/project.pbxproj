@@ -27,6 +27,7 @@
 		0974D4642B4571C000CA18E3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0974D4662B4571C000CA18E3 /* Localizable.strings */; };
 		098E247B2B665C6D0003517F /* ReviewPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098E247A2B665C6D0003517F /* ReviewPage.swift */; };
 		09F597BB2B738A7C0073B2F8 /* SocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BA2B738A7C0073B2F8 /* SocketManager.swift */; };
+		09F597BD2B74CAA70073B2F8 /* GoogleSTT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BC2B74CAA70073B2F8 /* GoogleSTT.swift */; };
 		BAEC2CB0F7A7D31CD5B83BEE /* Pods_PathPal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */; };
 /* End PBXBuildFile section */
 
@@ -53,6 +54,7 @@
 		0974D4652B4571C000CA18E3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		098E247A2B665C6D0003517F /* ReviewPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPage.swift; sourceTree = "<group>"; };
 		09F597BA2B738A7C0073B2F8 /* SocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketManager.swift; sourceTree = "<group>"; };
+		09F597BC2B74CAA70073B2F8 /* GoogleSTT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSTT.swift; sourceTree = "<group>"; };
 		7C7B0305E9439FAEEAACBD55 /* Pods-PathPal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.debug.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.debug.xcconfig"; sourceTree = "<group>"; };
 		8343B3F5DA14839E495E7F27 /* Pods-PathPal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.release.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.release.xcconfig"; sourceTree = "<group>"; };
 		C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PathPal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +100,7 @@
 				0955DB332B5F739900CC676F /* MapViewModel.swift */,
 				092C717A2B578BDD00960DA5 /* GoogleTTS.swift */,
 				09F597BA2B738A7C0073B2F8 /* SocketManager.swift */,
+				09F597BC2B74CAA70073B2F8 /* GoogleSTT.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 			files = (
 				092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */,
 				0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */,
+				09F597BD2B74CAA70073B2F8 /* GoogleSTT.swift in Sources */,
 				0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */,
 				0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */,
 				09F597BB2B738A7C0073B2F8 /* SocketManager.swift in Sources */,

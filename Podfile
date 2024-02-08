@@ -9,4 +9,5 @@ target 'PathPal' do
   pod 'GoogleMaps'
   pod 'GooglePlaces', '8.3.0'
   pod 'NMapsMap'
+  pod 'googleapis', :path => '.'
 end

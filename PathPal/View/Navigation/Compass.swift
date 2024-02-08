@@ -52,7 +52,7 @@ struct Compass: View {
                         .frame(width: 100)
                     // 목표 방향을 가리키는 화살표
                     Image(systemName: "arrow.up")
-                        .font(.system(size: 50))
+                        .font(.system(size: 50, weight: .light))
                         .foregroundColor(.red)
                         .rotationEffect(.degrees(mapVM.startHeading ?? 0))
                 }
