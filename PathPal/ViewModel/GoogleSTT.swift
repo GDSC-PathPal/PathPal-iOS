@@ -13,45 +13,6 @@ import SwiftUI
 let HOST = "speech.googleapis.com"
 let sttApiKey = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_STT_API_KEY") as? String ?? ""
 
-struct GoogleSTTView: View {
-    @State var isRecording = false
-    @StateObject var speechManager = GoogleSpeechManager()
-    @State var transcripts: [String] = []
-    
-    var body: some View {
-        VStack {
-            
-            Text(sttApiKey)
-            
-            Button(action: run, label: { Text("Run") })
-            
-            ForEach($transcripts, id: \.self) { $tr in
-                TextEditor(text: $tr)
-            }
-            
-            TextEditor(text: $speechManager.transcript)
-        }
-        .padding()
-        .onChange(of: speechManager.isFinal) { isFinal in
-            if isFinal {
-                transcripts.append(speechManager.getPrevTranscript())
-            }
-        }
-    }
-    
-    func run() {
-        isRecording = !isRecording
-        
-        if isRecording {
-            speechManager.startRecording()
-            print("Recording ...")
-        } else {
-            speechManager.stopRecording()
-            print("Recording stopped.")
-        }
-    }
-}
-
 class GoogleSpeechManager: ObservableObject {
     @Published var transcript = ""
     var prevTranscript = ""
@@ -120,7 +81,7 @@ class AudioController {
     var processSampleDataCallback: ((Data) -> Void)!
     
     static var sharedInstance = AudioController()
-        
+    
     deinit {
         AudioComponentInstanceDispose(remoteIOUnit!);
     }
@@ -266,7 +227,7 @@ class SpeechRecognitionService {
     private var client : Speech!
     private var writer : GRXBufferedPipe!
     private var call : GRPCProtoCall!
-
+    
     static let sharedInstance = SpeechRecognitionService()
     
     func streamAudioData(_ audioData: NSData, completion: @escaping SpeechRecognitionCompletionHandler) {
@@ -300,7 +261,8 @@ class SpeechRecognitionService {
             let recognitionConfig = RecognitionConfig()
             recognitionConfig.encoding =  .linear16
             recognitionConfig.sampleRateHertz = Int32(sampleRate)
-            recognitionConfig.languageCode = "en-US"
+//            recognitionConfig.languageCode = "en-US"
+            recognitionConfig.languageCode = "ko-KR"
             recognitionConfig.maxAlternatives = 30
             recognitionConfig.enableWordTimeOffsets = true
             recognitionConfig.speechContextsArray = [speechContext]
@@ -333,6 +295,5 @@ class SpeechRecognitionService {
     func isStreaming() -> Bool {
         return streaming
     }
-    
 }
 
