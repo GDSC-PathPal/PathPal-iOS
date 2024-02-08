@@ -14,6 +14,7 @@ enum SearchMode {
 }
 
 struct NavigationPage: View {
+    @ObservedObject var socketManager = SocketManager.shared
     
     @ObservedObject var mapVM: MapViewModel
     @State private var errorMsg: String?
@@ -58,10 +59,10 @@ struct NavigationPage: View {
                                     .padding()
                                 }
                         }
-//                        .simultaneousGesture(TapGesture().onEnded {
-//                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-//                            searchMode = .startingPoint
-//                        })
+                        //                        .simultaneousGesture(TapGesture().onEnded {
+                        //                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
+                        //                            searchMode = .startingPoint
+                        //                        })
                         //출발지 검색어 초기화 버튼
                         Button(action: {
                             mapVM.startingPoint.name = ""
@@ -152,7 +153,7 @@ struct NavigationPage: View {
                                         NavigationLink(destination: {
                                             MapView(mapVM: mapVM)
                                         }, label: {
-                                                Text("지도 보기")
+                                            Text("지도 보기")
                                                 .font(.system(size: 13))
                                                 .foregroundStyle(Color.hex454545)
                                                 .padding(.horizontal, 10)
@@ -224,6 +225,13 @@ struct NavigationPage: View {
             }
             .padding(.top, 60)
         }
+        .onAppear(perform: {
+            socketManager.setupWebSocket(totalTime: "600")
+            socketManager.setupDataProcessing()
+        })
+        .onDisappear(perform: {
+            socketManager.websocket.disconnect()
+        })
     }
     
     func formatDistanceAndTime(distanceInMeters: Int, timeInSeconds: Int) -> String {

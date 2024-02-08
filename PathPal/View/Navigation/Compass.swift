@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
+import Starscream
 
 struct Compass: View {
-    
     @ObservedObject var mapVM: MapViewModel
     @State var navigateToVisionPage: Bool = false
     
