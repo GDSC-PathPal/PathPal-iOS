@@ -12,6 +12,8 @@
 	<string>${GOOGLE_MAPS_API_KEY}</string>
 	<key>GOOGLE_PLACES_API_KEY</key>
 	<string>${GOOGLE_PLACES_API_KEY}</string>
+	<key>GOOGLE_STT_API_KEY</key>
+	<string>${GOOGLE_STT_API_KEY}</string>
 	<key>GOOGLE_TTS_API_KEY</key>
 	<string>${GOOGLE_TTS_API_KEY}</string>
 	<key>TMAP_APP_KEY</key>

@@ -26,7 +26,8 @@ struct ContentView: View {
                         }
                     }
             } else {
-                NavigationPage(mapVM: mapVM)
+                GoogleSTTView()
+//                NavigationPage(mapVM: mapVM)
 //                VisionView(mapVM: mapVM)
             }
         }
