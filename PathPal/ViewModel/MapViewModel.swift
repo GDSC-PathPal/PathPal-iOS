@@ -359,7 +359,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 case 218:
                     return "엘리베이터"
                 case 233:
-                    return "직진 임시"
+                    return "임시 직진"
                 default:
                     return ""
                 }
@@ -367,9 +367,27 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func roadTypeDescription(from roadType: Int?) -> String {
         switch roadType {
-        case 21, 22, 23, 24: return "보행자 도로"
-        // 여기에 더 많은 도로 유형을 추가할 수 있습니다.
+            case 21: return "차도와 인도가 분리되어 있으며, 정해진 횡단구역으로만 횡단 가능한 보행자 도로"
+            case 22: return "차도와 인도가 분리되어 있지 않거나, 보행자 횡단에 제약이 없는 보행자 도로"
+            case 23: return "차량 통행이 불가능한 보행자도로"
+            case 24: return "쾌적하지 않은 도로"
         default: return ""
+        }
+    }
+    
+    func facilityDescription(from facilityType: String?) -> String {
+        switch facilityType {
+        case "1": return "교량"
+            case "2": return "터널"
+            case "3": return "고가도로"
+            case "11": return "일반보행자도로"
+            case "12": return "육교"
+            case "14": return "지하보도"
+            case "15": return "횡단보도"
+            case "16": return "대형시설물이동통로"
+            case "17": return "계단"
+        default: return ""
+
         }
     }
     
