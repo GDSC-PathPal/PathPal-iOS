@@ -30,6 +30,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var extractedMapIds: [String] = []
     @Published var routeInstruction: [String]?
     
+    @Published var wayPointArray: [WayPoint] = []
+    
     var cancellables = Set<AnyCancellable>()
     
     //지도에 표시될 마커들
@@ -40,7 +42,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var isHeadingRightDirection: Bool = false
     @Published var hasTriggeredHapticFeedback: Bool = false  // 진동 발생 여부 추적
 
-    
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
     @Published var isLoading = true  // Tracks if the location is being loaded initially
@@ -95,10 +96,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         if isHeadingRightDirection, !previousHeading, !hasTriggeredHapticFeedback {
             hasTriggeredHapticFeedback = true  // 진동 발생 표시
         }
-        print("출발 방향 : ", startHeading)
-        print("유저 방향 : ", userHeading)
     }
-
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in
@@ -106,7 +104,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             
 
             let encodedUrl = targetUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-            print(encodedUrl)
 
             guard let url = URL(string: encodedUrl) else {
                 fatalError("Invalid URL")
@@ -150,7 +147,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                         break
                     }
                 }, receiveValue: { data in
-                    print("검색결과 : ", data)
+//                    print("검색결과 : ", data)
                     self.skResponse = data
                     promise(.success(data.searchPoiInfo.pois.poi))
                     
@@ -223,7 +220,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 }
             }
         }
-        
         self.routeInstruction = instructions
     }
     
@@ -384,6 +380,54 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             let nextWaypoint = coordinatesForMap[1]
             startHeading = calculateBearing(from: start, to: nextWaypoint)
         }
+    }
+    
+    func extractWayPoints(from routeResponse: RouteResponse){
+        let features = routeResponse.features
+
+        for (index, feature) in features.enumerated() {
+            if feature.geometry.type == "Point", index + 1 < features.count, features[index + 1].geometry.type == "LineString" {
+                let wayPoint = combinePointAndLineStringFeatures(pointFeature: feature, lineStringFeature: features[index + 1])
+                self.wayPointArray.append(wayPoint)
+            }
+        }
+        print("경유지 배열!", self.wayPointArray)
+    }
+    
+    //실시간 안내를 위한 웨이포인트
+    func combinePointAndLineStringFeatures(pointFeature: Feature, lineStringFeature: Feature) -> WayPoint {
+        // 'Point' 타입 Feature의 좌표
+        let pointCoordinates: [Double] = {
+            if case let .point(coordinates) = pointFeature.geometry.coordinates {
+                return coordinates
+            } else {
+                return [0.0, 0.0]  // 기본값, 실제 사용시 적절한 오류 처리 필요
+            }
+        }()
+        
+        let longitude = pointCoordinates[0]
+        let latitude = pointCoordinates[1]
+
+        // 'Point' 타입 Feature에서 정보 추출
+        let pointName = pointFeature.properties.name ?? "Unknown"
+        let pointDescription = pointFeature.properties.description ?? ""
+        let pointTurnType = pointFeature.properties.turnType ?? 0
+        let pointFacilityType = pointFeature.properties.facilityType ?? ""
+
+        // 'LineString' 타입 Feature에서 정보 추출
+        let lineStringRoadType = lineStringFeature.properties.roadType ?? 0
+        let lineStringTime = lineStringFeature.properties.time ?? 0
+
+        return WayPoint(
+            longitude: longitude.description,
+            latitude: latitude.description,
+            name: pointName,
+            description: pointDescription,
+            turnType: pointTurnType.description,
+            facilityType: pointFacilityType.description,
+            roadType: lineStringRoadType.description,
+            time: lineStringTime.description
+        )
     }
 }
 

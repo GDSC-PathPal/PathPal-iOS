@@ -289,6 +289,8 @@ struct NavigationPage: View {
                 mapVM.routeProperties = data.features[0].properties
                 print("캐싱한 porperty 데이터", mapVM.routeProperties)
                 mapVM.generateNavigationInstructions(response: data)
+                //경유지 데이터 삽입
+                mapVM.extractWayPoints(from: data)
                 totalString = formatDistanceAndTime(distanceInMeters: mapVM.routeProperties?.totalDistance ?? 0, timeInSeconds: mapVM.routeProperties?.totalTime ?? 0)
                 mapVM.hassucceededFetching = true
                 mapVM.isFetching = false

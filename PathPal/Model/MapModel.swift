@@ -191,3 +191,4 @@ struct Properties: Codable {
     let roadType: Int?
     let categoryRoadType: Int?
 }
+

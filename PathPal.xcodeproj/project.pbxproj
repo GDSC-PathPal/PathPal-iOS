@@ -16,6 +16,7 @@
 		0919EC832B3ACF640012F661 /* Compass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919EC822B3ACF640012F661 /* Compass.swift */; };
 		092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092C717A2B578BDD00960DA5 /* GoogleTTS.swift */; };
 		092E0D792B73656600582459 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092E0D782B73656600582459 /* ResponseModel.swift */; };
+		093E73AF2B75EE4E0096C8BC /* WayPonitModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093E73AE2B75EE4E0096C8BC /* WayPonitModel.swift */; };
 		0955DB342B5F739900CC676F /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB332B5F739900CC676F /* MapViewModel.swift */; };
 		0955DB362B5F73BB00CC676F /* MapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB352B5F73BB00CC676F /* MapModel.swift */; };
 		0955DB382B5F73F700CC676F /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0955DB372B5F73F700CC676F /* SearchModel.swift */; };
@@ -43,6 +44,7 @@
 		092C717A2B578BDD00960DA5 /* GoogleTTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTTS.swift; sourceTree = "<group>"; };
 		092E0D772B735ACF00582459 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		092E0D782B73656600582459 /* ResponseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseModel.swift; sourceTree = "<group>"; };
+		093E73AE2B75EE4E0096C8BC /* WayPonitModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WayPonitModel.swift; sourceTree = "<group>"; };
 		0955DB332B5F739900CC676F /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		0955DB352B5F73BB00CC676F /* MapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapModel.swift; sourceTree = "<group>"; };
 		0955DB372B5F73F700CC676F /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				0955DB352B5F73BB00CC676F /* MapModel.swift */,
 				0955DB372B5F73F700CC676F /* SearchModel.swift */,
 				092E0D782B73656600582459 /* ResponseModel.swift */,
+				093E73AE2B75EE4E0096C8BC /* WayPonitModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				093E73AF2B75EE4E0096C8BC /* WayPonitModel.swift in Sources */,
 				092C717B2B578BDD00960DA5 /* GoogleTTS.swift in Sources */,
 				0919EC782B3AC7BE0012F661 /* Camera.swift in Sources */,
 				09F597BD2B74CAA70073B2F8 /* GoogleSTT.swift in Sources */,
