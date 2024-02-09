@@ -19,13 +19,14 @@ struct NavigationPage: View {
     @ObservedObject var mapVM: MapViewModel
     @State private var errorMsg: String?
     var cancellables = Set<AnyCancellable>()
-    @State var isFetched: Bool = false
     @State var searchMode: SearchMode = .startingPoint
     @State var totalString: String = ""
     
     // NavigationLink의 활성화 상태를 추적하는 새로운 @State 변수들
     @State private var isStartingPointActive = false
     @State private var isDestinationActive = false
+    
+    @State var isStartingPointEqualsUserLocation: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -36,38 +37,44 @@ struct NavigationPage: View {
                         .font(.system(size: 17, weight: .semibold))
                     HStack(spacing: 15) {
                         //출발지 검색 버튼
-                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.startingPoint))) {
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.startingPoint), isStartingPointEqualsUserLocation: $isStartingPointEqualsUserLocation)) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
                                 .frame(width: screenWidth * 0.75, height: 50)
                                 .overlay {
                                     HStack {
-                                        if mapVM.startingPoint.name == "" {
-                                            Text("출발지 검색")
-                                                .font(.system(size: 15))
-                                                .foregroundStyle(Color.hex959595)
-                                        } else {
+                                        switch isStartingPointEqualsUserLocation {
+                                        case false:
+                                            if mapVM.startingPoint.name == "" {
+                                                Text("출발지 검색")
+                                                    .font(.system(size: 15))
+                                                    .foregroundStyle(Color.hex959595)
+                                                Spacer()
+                                            } else {
+                                                HStack {
+                                                    Text( mapVM.startingPoint.name)
+                                                        .font(.system(size: 15))
+                                                        .foregroundStyle(Color.hex292929)
+                                                    Spacer()
+                                                }
+                                            }
+                                        case true:
                                             HStack {
-                                                Text(mapVM.startingPoint.name)
+                                                Text("현위치")
                                                     .font(.system(size: 15))
                                                     .foregroundStyle(Color.hex292929)
                                                 Spacer()
                                             }
                                         }
-                                        Spacer()
                                     }
                                     .padding()
                                 }
                         }
-                        //                        .simultaneousGesture(TapGesture().onEnded {
-                        //                            // NavigationLink가 활성화되기 전에 searchMode 값을 설정
-                        //                            searchMode = .startingPoint
-                        //                        })
                         //출발지 검색어 초기화 버튼
                         Button(action: {
-                            mapVM.startingPoint.name = ""
-                            mapVM.routeInstruction = []
-                            isFetched = false
+                            mapVM.initStartingPoint()
+                            isStartingPointEqualsUserLocation = false
+                            mapVM.hassucceededFetching = false
                         }, label: {
                             Image(systemName: "x.circle")
                                 .font(.system(size: 20))
@@ -83,7 +90,7 @@ struct NavigationPage: View {
                         .font(.system(size: 17, weight: .semibold))
                     HStack(spacing: 15) {
                         //도착지 검색 버튼
-                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.destination))) {
+                        NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.destination), isStartingPointEqualsUserLocation: $isStartingPointEqualsUserLocation)) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
                                 .frame(width: screenWidth * 0.75, height: 50)
@@ -108,9 +115,8 @@ struct NavigationPage: View {
                         }
                         //도착지 검색어 초기화 버튼
                         Button(action: {
-                            mapVM.destination.name = ""
-                            mapVM.routeInstruction = []
-                            isFetched = false
+                            mapVM.initDestination()
+                            mapVM.hassucceededFetching = false
                         }, label: {
                             Image(systemName: "x.circle")
                                 .font(.system(size: 20))
@@ -119,31 +125,29 @@ struct NavigationPage: View {
                     }
                 }
                 .padding(.bottom, 40)
-                
-                if !mapVM.isFetching && !isFetched && mapVM.routeInstruction == [] {
-                    VStack {
-                        Button(action: {
-                            fetchRoute()
-                        }, label: {
-                            RoundedRectangle(cornerRadius: 25.5)
-                                .frame(width: screenWidth * 0.85, height: 50)
-                                .foregroundStyle(Color.hex246FFF)
-                                .overlay {
-                                    Text("길찾기")
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .foregroundStyle(Color.white)
-                                }
-                        })
-                        .disabled(mapVM.isFetching)
-                    }
-                } else {
-                    VStack {
-                        if mapVM.isFetching {
-                            Text("경로 찾는 중")
+                VStack {
+                    if mapVM.routeInstruction == nil {
+                        VStack {
+                            Button(action: {
+                                fetchRoute()
+                            }, label: {
+                                RoundedRectangle(cornerRadius: 25.5)
+                                    .frame(width: screenWidth * 0.85, height: 50)
+                                    .foregroundStyle(Color.hex246FFF)
+                                    .overlay {
+                                        Text("길찾기")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundStyle(Color.white)
+                                    }
+                            })
+                            .disabled(mapVM.isFetching)
+                        }
+                    } else {
+                        if mapVM.routeInstruction == [] {
+                            Text("검색 결과가 없습니다")
+                                .accessibilityHint("출발지와 도착지를 확인해주세요")
                         } else {
-                            if mapVM.routeInstruction == [] {
-                                Text("출발지와 도착지를 확인해주세요")
-                            } else {
+                            VStack {
                                 //경로 안내
                                 VStack {
                                     HStack {
@@ -180,7 +184,7 @@ struct NavigationPage: View {
                                         .padding(17)
                                         .background(Color.hexF4F8FF)
                                         VStack(alignment: .leading) {
-                                            ForEach(mapVM.routeInstruction, id: \.self) { route in
+                                            ForEach(mapVM.routeInstruction ?? [], id: \.self) { route in
                                                 VStack(alignment: .leading) {
                                                     Text(route)
                                                         .font(.system(size: 14.5))
@@ -201,27 +205,26 @@ struct NavigationPage: View {
                                 }
                                 .padding(.bottom)
                                 
-                                // 출발하기
-                                VStack {
-                                    NavigationLink(destination: {
-                                        Compass(mapVM: mapVM)
-                                    }, label: {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .frame(width: screenWidth * 0.86, height: 50)
-                                            .foregroundStyle(Color.hex246FFF)
-                                            .overlay {
-                                                Text("출발하기")
-                                                    .font(.system(size: 17, weight: .semibold))
-                                                    .foregroundStyle(Color.white)
-                                            }
-                                    })
-                                }
+                            }
+                            // 출발하기
+                            VStack {
+                                NavigationLink(destination: {
+                                    Compass(mapVM: mapVM)
+                                }, label: {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .frame(width: screenWidth * 0.86, height: 50)
+                                        .foregroundStyle(Color.hex246FFF)
+                                        .overlay {
+                                            Text("출발하기")
+                                                .font(.system(size: 17, weight: .semibold))
+                                                .foregroundStyle(Color.white)
+                                        }
+                                })
                             }
                         }
                     }
-                    .padding(.top, -20)
+                    Spacer()
                 }
-                Spacer()
             }
             .padding(.top, 60)
         }
@@ -260,7 +263,6 @@ struct NavigationPage: View {
     }
     
     func fetchRoute() {
-        isFetched = false
         let startName = "내 위치".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let endName = mapVM.destination.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         
@@ -279,11 +281,8 @@ struct NavigationPage: View {
             "resCoordType": "WGS84GEO",
             "sort": "index"
         ] as [String : Any]
-        
-        mapVM.isFetching = true
         mapVM.fetchRoute(parameters: parameters)
             .sink(receiveCompletion: { _ in
-                mapVM.isFetching = false
             }, receiveValue: { data in
                 print("경로 데이터 : ", data)
                 mapVM.parseRouteCoordinates(routeResponse: data)
@@ -291,7 +290,8 @@ struct NavigationPage: View {
                 print("캐싱한 porperty 데이터", mapVM.routeProperties)
                 mapVM.generateNavigationInstructions(response: data)
                 totalString = formatDistanceAndTime(distanceInMeters: mapVM.routeProperties?.totalDistance ?? 0, timeInSeconds: mapVM.routeProperties?.totalTime ?? 0)
-                isFetched = true
+                mapVM.hassucceededFetching = true
+                mapVM.isFetching = false
             })
             .store(in: &mapVM.cancellables)
     }
@@ -300,23 +300,3 @@ struct NavigationPage: View {
 #Preview {
     NavigationPage(mapVM: MapViewModel())
 }
-
-//출발지 = 현재위치 코드
-
-//                VStack(alignment: .leading) {
-//                    Text("출발지")
-//                        .font(.system(size: 17, weight: .semibold))
-//                    RoundedRectangle(cornerRadius: 25.5)
-//                        .stroke(Color.hexBBD2FF)
-//                        .frame(width: screenWidth * 0.85, height: 50)
-//                        .overlay {
-//                            HStack {
-//                                Text(mapVM.isLoading ? "현재 위치 설정 중" : "현재 위치를 출발지로 설정 완료")
-//                                    .font(.system(size: 15, weight: mapVM.isLoading ? .regular : .medium))
-//                                    .foregroundColor(mapVM.isLoading ? .hex959595 : .hex292929)
-//                                Spacer()
-//                            }
-//                            .padding()
-//                        }
-//                }
-//                .padding(.bottom)

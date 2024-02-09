@@ -35,7 +35,7 @@ struct RouteModal: View {
                     .padding(15)
                     .background(Color.hexF4F8FF)
                     VStack(alignment: .leading) {
-                        ForEach(mapVM.routeInstruction, id: \.self) { route in
+                        ForEach(mapVM.routeInstruction ?? [], id: \.self) { route in
                             VStack(alignment: .leading) {
                                 Text(route)
                                     .font(.system(size: 15))

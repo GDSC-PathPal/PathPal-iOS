@@ -24,6 +24,7 @@ struct SearchView: View {
     @State var responseArray: [PoiDetail] = []
     
     @Binding var searchMode: SearchMode
+    @Binding var isStartingPointEqualsUserLocation: Bool
     
     var body: some View {
         VStack {
@@ -52,6 +53,43 @@ struct SearchView: View {
                 .font(.system(size: 20))
                 //구분선
                 Rectangle()
+                    .frame(width: screenWidth, height: 3)
+                    .foregroundStyle(Color.hexEFEFEF)
+                    .accessibilityHidden(true)
+                //현위치 및 음성인식 버튼
+                HStack {
+                    //SearchMode == .startingPont 현위치 설정 버튼
+                    if searchMode == .startingPoint {
+                        Button(action: {
+                            mapVM.startingPoint.noorLat = mapVM.userLocation.coordinate.latitude.description
+                            mapVM.startingPoint.noorLon = mapVM.userLocation.coordinate.longitude.description
+                            isStartingPointEqualsUserLocation = true
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            HStack {
+                                Image(systemName: "dot.scope")
+                                Text("현위치")
+                            }
+                            .padding(7)
+                        })
+                        .frame(width: screenWidth * 0.45)
+                    }
+                    //음성 인식 버튼
+                    Button(action: {
+                        
+                    }, label: {
+                        HStack {
+                            Image(systemName: "mic")
+                            Text("음성 인식")
+                        }
+                        .padding(7)
+                        
+                    })
+                    .frame(width: screenWidth * 0.45)
+                }
+                .foregroundStyle(Color.hex353535)
+                //구분선
+                Rectangle()
                     .frame(width: screenWidth, height: 1)
                     .foregroundStyle(Color.hexEFEFEF)
                     .accessibilityHidden(true)
@@ -60,7 +98,7 @@ struct SearchView: View {
             .padding(.top, 15)
             //검색 결과 리스트
             List {
-                ForEach(resultArray, id: \.self) { place in 
+                ForEach(resultArray, id: \.self) { place in
                     VStack(alignment: .leading, spacing: 35) {
                         //카드 하나
                         HStack(spacing: 13) {
@@ -102,6 +140,12 @@ struct SearchView: View {
             .listStyle(PlainListStyle())
         }
         .onAppear {
+            if searchMode == .startingPoint {
+                isStartingPointEqualsUserLocation = false
+                mapVM.initStartingPoint()
+            } else {
+                mapVM.initDestination()
+            }
             self.focusTextField = .textField
         }
         .onDisappear {
@@ -111,19 +155,19 @@ struct SearchView: View {
     
     func loadMoreResults() {
         currentPage += 1
-            mapVM.requestKeywordDataToSK(query: query, longitude: String(format: "%.6f", mapVM.userLocation.coordinate.longitude), latitude: String(format: "%.6f", mapVM.userLocation.coordinate.latitude), page: currentPage)
-                .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        print("키워드 검색 비동기 error : \(error)")
-                    case .finished:
-                        break
-                    }
-                }, receiveValue: { pois in
-                    self.responseArray = pois
-                    resultArray.append(contentsOf: responseArray)
-                })
-                .store(in: &mapVM.cancellables)
+        mapVM.requestKeywordDataToSK(query: query, longitude: String(format: "%.6f", mapVM.userLocation.coordinate.longitude), latitude: String(format: "%.6f", mapVM.userLocation.coordinate.latitude), page: currentPage)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    print("키워드 검색 비동기 error : \(error)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: { pois in
+                self.responseArray = pois
+                resultArray.append(contentsOf: responseArray)
+            })
+            .store(in: &mapVM.cancellables)
     }
     
     func searchByKeyword(query: String, page: Int) {
@@ -137,10 +181,14 @@ struct SearchView: View {
                     break
                 }
             }, receiveValue: { pois in
-                    resultArray.removeAll()
-                mapVM.routeInstruction.removeAll()
-                    self.resultArray = pois
+                resultArray.removeAll()
+                mapVM.routeInstruction?.removeAll()
+                self.resultArray = pois
             })
             .store(in: &mapVM.cancellables)
     }
+}
+
+#Preview {
+    SearchView(mapVM: MapViewModel(), searchMode: .constant(SearchMode.startingPoint), isStartingPointEqualsUserLocation: .constant(true))
 }

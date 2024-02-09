@@ -22,12 +22,13 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var skResponse: SKResponse?
     
     @Published var isFetching: Bool = false
+    @Published var hassucceededFetching: Bool = false
     @Published var isSearching: Bool = false
     
     @Published var routeProperties: Properties?
     
     @Published var extractedMapIds: [String] = []
-    @Published var routeInstruction: [String] = []
+    @Published var routeInstruction: [String]?
     
     var cancellables = Set<AnyCancellable>()
     
@@ -53,6 +54,16 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.locationManager.startUpdatingHeading()  // Start receiving heading updates
     }
     
+    func initStartingPoint() {
+        self.startingPoint = PoiDetail(id: "", name: "")
+        self.routeInstruction = nil
+    }
+    
+    func initDestination() {
+        self.destination = PoiDetail(id: "", name: "")
+        self.routeInstruction = nil
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             lastLocation = location
@@ -61,21 +72,19 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             startingPoint.noorLon = String(format: "%.6f", location.coordinate.longitude)
             startingPoint.noorLat = String(format: "%.6f", location.coordinate.latitude)
             isLoading = false
-            //                      print("řocation updated: \(location.coordinate.latitude), \(location.coordinate.lrongitude)")
+            //print("řocation updated: \(location.coordinate.latitude), \(location.coordinate.lrongitude)")
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
         userHeading = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-        //      print("Heading updated: \(bearing)")
+        //print("Heading updated: \(bearing)")
         
         // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
         //오차 범위
         if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 300) {
-            print(startHeading)
             isHeadingRightDirection = true
-            // 진동 트리거 (선택적)
         } else {
             isHeadingRightDirection = false
         }
@@ -107,7 +116,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                         break
                     }
                 }, receiveValue: { data in
-//                    print("검색 결과 from sk : ", data)
                     self.skResponse = data
                     promise(.success(data.searchPoiInfo.pois.poi))
                     
@@ -117,6 +125,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func fetchRoute(parameters: [String: Any]) -> AnyPublisher<RouteResponse, Error> {
+        self.isFetching = true
+        self.hassucceededFetching = false
         let url = URL(string: "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&callback=function")!
         let headers = [
             "accept": "application/json",
@@ -154,11 +164,15 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             .receive(on: DispatchQueue.main)
             .catch { error -> AnyPublisher<RouteResponse, Error> in
                 if let urlError = error as? URLError {
+                    self.hassucceededFetching = false
                     print("Error Code: \(urlError.errorCode)")
                     print("Error Message: \(urlError.localizedDescription)")
                 } else {
                     print("Unknown error: \(error)")
                 }
+                self.hassucceededFetching = false
+                self.routeInstruction = []
+                self.isFetching = false
                 return Fail(error: error).eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
@@ -331,12 +345,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func updateMapWithRoute() {
         // 출발지와 첫 번째 경유지 사이의 방향 계산
-        print("coorinatesForMap: ", coordinatesForMap)
         if coordinatesForMap.count >= 2 {
             let start = coordinatesForMap[0]
             let nextWaypoint = coordinatesForMap[1]
             startHeading = calculateBearing(from: start, to: nextWaypoint)
-            print("startHEading : ", startHeading)
         }
     }
 }
@@ -383,13 +395,9 @@ extension MapViewModel {
         if coordinatesForMap.count >= 2 {
             self.updateMapWithRoute()
         }
-    
-        print("지도 경로 표시를 위한 좌표 : ", routeCoordinates)
     }
     
     func calculateBearing(from start: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) -> Double {
-        
-        print("방향 계산 함수 호출")
         let lat1 = start.latitude.toRadians()
         let lon1 = start.longitude.toRadians()
 
