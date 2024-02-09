@@ -38,6 +38,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     //올바른 출발 방향 관련 변수
     @Published var startHeading: Double?
     @Published var isHeadingRightDirection: Bool = false
+    @Published var hasTriggeredHapticFeedback: Bool = false  // 진동 발생 여부 추적
+
     
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
@@ -67,35 +69,45 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             lastLocation = location
-            userLocation = location
+            userLocation = location  // 사용자의 최신 위치 업데이트
             
+            // 출발지 좌표 업데이트
             startingPoint.noorLon = String(format: "%.6f", location.coordinate.longitude)
             startingPoint.noorLat = String(format: "%.6f", location.coordinate.latitude)
             isLoading = false
-            //print("řocation updated: \(location.coordinate.latitude), \(location.coordinate.lrongitude)")
         }
     }
-    
+
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-        userHeading = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-        //print("Heading updated: \(bearing)")
+        userHeading = bearing  // 사용자의 최신 헤딩 업데이트
         
+        let previousHeading = isHeadingRightDirection
+
         // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
-        //오차 범위
-        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 300) {
+        //오차
+        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 5) {
             isHeadingRightDirection = true
         } else {
             isHeadingRightDirection = false
         }
+        
+        if isHeadingRightDirection, !previousHeading, !hasTriggeredHapticFeedback {
+            hasTriggeredHapticFeedback = true  // 진동 발생 표시
+        }
+        print("출발 방향 : ", startHeading)
+        print("유저 방향 : ", userHeading)
     }
+
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in
             let targetUrl = "https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=\(query)&searchType=all&page=\(page)&count=15&resCoordType=WGS84GEO&multiPoint=N&searchtypCd=R&radius=0&reqCoordType=WGS84GEO&poiGroupYn=N&centerLon=\(longitude)&centerLat=\(latitude)"
             
+
             let encodedUrl = targetUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-            
+            print(encodedUrl)
+
             guard let url = URL(string: encodedUrl) else {
                 fatalError("Invalid URL")
             }
@@ -104,9 +116,31 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             request.setValue("application/json", forHTTPHeaderField: "Accept")
             request.setValue("\(TMAP_APP_KEY)", forHTTPHeaderField: "appKey")
             URLSession.shared.dataTaskPublisher(for: request)
-                .map { $0.data }
+                .tryMap { output in
+                    guard let response = output.response as? HTTPURLResponse else {
+                        throw URLError(.badServerResponse)
+                    }
+                    
+                    print("HTTP Status Code: \(response.statusCode)")
+                    
+                    guard response.statusCode == 200 else {
+                        throw URLError(.badServerResponse)
+                    }
+                    
+                    return output.data
+                }
                 .decode(type: SKResponse.self, decoder: JSONDecoder())
                 .receive(on: DispatchQueue.main)
+                .catch { error -> AnyPublisher<SKResponse, Error> in
+                    if let urlError = error as? URLError {
+                        self.hassucceededFetching = false
+                        print("Error Code: \(urlError.errorCode)")
+                        print("Error Message: \(urlError.localizedDescription)")
+                    } else {
+                        print("Unknown error: \(error)")
+                    }
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
                 .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
@@ -116,6 +150,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                         break
                     }
                 }, receiveValue: { data in
+                    print("검색결과 : ", data)
                     self.skResponse = data
                     promise(.success(data.searchPoiInfo.pois.poi))
                     
@@ -194,7 +229,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func formatInstruction(description: String, turnType: Int) -> String {
         var instruction = description
-
 
         // ~로 을
         if instruction.contains("로 을") {

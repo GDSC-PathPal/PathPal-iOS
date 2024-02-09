@@ -294,4 +294,3 @@ class SpeechRecognitionService {
         return streaming
     }
 }
-

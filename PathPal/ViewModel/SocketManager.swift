@@ -105,8 +105,6 @@ class SocketManager: ObservableObject, WebSocketDelegate {
             self.visionResponses = responseData
             print("비전 응답 : ", responseData)
             for response in responseData {
-                print("Korean: \(response.koreanTTSString)")
-                print("Alert Needed: \(response.needAlert)")
                 //테스트
                 speechService.speak(text: response.koreanTTSString)
                 if response.needAlert == "true" {

@@ -282,6 +282,7 @@ struct VisionView: View {
             cameraController?.totalTime = mapVM.routeProperties?.totalTime?.description ?? ""
         }
         .onDisappear {
+            mapVM.hasTriggeredHapticFeedback = false
             cameraController?.stopCamera()
         }
     }
