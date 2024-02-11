@@ -25,120 +25,131 @@ struct SearchView: View {
     
     @Binding var searchMode: SearchMode
     @Binding var isStartingPointEqualsUserLocation: Bool
+
+    @State var isShowingMic: Bool = false
     
     var body: some View {
-        VStack {
+
+            // 검색 페이지 뷰
             VStack {
-                //검색창
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .padding(.trailing)
-                        .accessibilityHidden(true)
-                    TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query, onCommit: {
-                        self.searchByKeyword(query: self.query, page: 1)
-                    })
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.hex959595)
-                    .focused($focusTextField, equals: .textField)
-                    .accessibilityLabel(Text("여기에 검색할 출발지를 입력하세요"))
-                    Spacer()
-                    Button(action: {
-                        self.searchByKeyword(query: self.query, page: 1)
-                    }, label: {
-                        Text("검색")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.hex246FFF)
-                    })
-                }
-                .font(.system(size: 20))
-                //구분선
-                Rectangle()
-                    .frame(width: screenWidth, height: 3)
-                    .foregroundStyle(Color.hexEFEFEF)
-                    .accessibilityHidden(true)
-                //현위치 및 음성인식 버튼
-                HStack {
-                    //SearchMode == .startingPont 현위치 설정 버튼
-                    if searchMode == .startingPoint {
+                VStack {
+                    //검색창
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .padding(.trailing)
+                            .accessibilityHidden(true)
+                        TextField(searchMode == .startingPoint ? "출발지 입력" : "도착지 입력", text: $query, onCommit: {
+                            self.searchByKeyword(query: self.query, page: 1)
+                        })
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color.hex959595)
+                        .focused($focusTextField, equals: .textField)
+                        .accessibilityLabel(Text("여기에 검색할 출발지를 입력하세요"))
+                        Spacer()
                         Button(action: {
-                            mapVM.startingPoint.noorLat = mapVM.userLocation.coordinate.latitude.description
-                            mapVM.startingPoint.noorLon = mapVM.userLocation.coordinate.longitude.description
-                            isStartingPointEqualsUserLocation = true
-                            presentationMode.wrappedValue.dismiss()
+                            self.searchByKeyword(query: self.query, page: 1)
+                        }, label: {
+                            Text("검색")
+                                .font(.system(size: 18))
+                                .foregroundStyle(Color.hex246FFF)
+                        })
+                    }
+                    .font(.system(size: 20))
+                    //구분선
+                    Rectangle()
+                        .frame(width: screenWidth, height: 3)
+                        .foregroundStyle(Color.hexEFEFEF)
+                        .accessibilityHidden(true)
+                    //현위치 및 음성인식 버튼
+                    HStack {
+                        //SearchMode == .startingPont 현위치 설정 버튼
+                        if searchMode == .startingPoint {
+                            Button(action: {
+                                mapVM.startingPoint.noorLat = mapVM.userLocation.coordinate.latitude.description
+                                mapVM.startingPoint.noorLon = mapVM.userLocation.coordinate.longitude.description
+                                isStartingPointEqualsUserLocation = true
+                                presentationMode.wrappedValue.dismiss()
+                            }, label: {
+                                HStack {
+                                    Image(systemName: "dot.scope")
+                                    Text("현위치")
+                                }
+                                .padding(7)
+                            })
+                            .frame(width: screenWidth * 0.45)
+                        }
+                        //음성 인식 버튼
+                        Button(action: {
+                            isShowingMic = true
                         }, label: {
                             HStack {
-                                Image(systemName: "dot.scope")
-                                Text("현위치")
+                                Image(systemName: "mic")
+                                Text("음성 인식")
                             }
                             .padding(7)
+                            
                         })
                         .frame(width: screenWidth * 0.45)
                     }
-                    //음성 인식 버튼
-                    Button(action: {
-                        
-                    }, label: {
-                        HStack {
-                            Image(systemName: "mic")
-                            Text("음성 인식")
-                        }
-                        .padding(7)
-                        
-                    })
-                    .frame(width: screenWidth * 0.45)
+                    .foregroundStyle(Color.hex353535)
+                    //구분선
+                    Rectangle()
+                        .frame(width: screenWidth, height: 1)
+                        .foregroundStyle(Color.hexEFEFEF)
+                        .accessibilityHidden(true)
                 }
-                .foregroundStyle(Color.hex353535)
-                //구분선
-                Rectangle()
-                    .frame(width: screenWidth, height: 1)
-                    .foregroundStyle(Color.hexEFEFEF)
-                    .accessibilityHidden(true)
-            }
-            .padding(13)
-            .padding(.top, 15)
-            //검색 결과 리스트
-            List {
-                ForEach(resultArray, id: \.self) { place in
-                    VStack(alignment: .leading, spacing: 35) {
-                        //카드 하나
-                        HStack(spacing: 13) {
-                            Rectangle()
-                                .frame(width: 2.45, height: 64)
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(place.name)
-                                    .font(.system(size: 15.5, weight: .medium))
-                                Text(place.roadName)
-                                    .font(.system(size: 13.5))
+                .padding(13)
+                .padding(.top, 15)
+                //검색 결과 리스트
+                List {
+                    ForEach(resultArray, id: \.self) { place in
+                        VStack(alignment: .leading, spacing: 35) {
+                            //카드 하나
+                            HStack(spacing: 13) {
+                                Rectangle()
+                                    .frame(width: 2.45, height: 64)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(place.name)
+                                        .font(.system(size: 15.5, weight: .medium))
+                                    Text(place.roadName)
+                                        .font(.system(size: 13.5))
+                                }
                             }
+                            .padding(.vertical, 8)
                         }
-                        .padding(.vertical, 8)
+                        .onTapGesture {
+                            mapVM.skResponse?.searchPoiInfo.totalCount = "0"
+                            if searchMode == .startingPoint {
+                                mapVM.startingPoint = place
+                            } else {
+                                mapVM.destination = place
+                            }
+                            presentationMode.wrappedValue.dismiss()
+                        }
                     }
-                    .onTapGesture {
-                        mapVM.skResponse?.searchPoiInfo.totalCount = "0"
-                        if searchMode == .startingPoint {
-                            mapVM.startingPoint = place
-                        } else {
-                            mapVM.destination = place
-                        }
-                        presentationMode.wrappedValue.dismiss()
+                    if Int(mapVM.skResponse?.searchPoiInfo.totalCount ?? "") ?? 0 > resultArray.count {
+                        Button(action: {
+                            loadMoreResults()
+                        }, label: {
+                            RoundedRectangle(cornerRadius: 5)
+                                .frame(width: screenWidth * 0.95, height: 55)
+                                .foregroundColor(.clear)
+                                .overlay (
+                                    Text("검색 결과 더보기")
+                                        .font(.system(size: 15.5, weight: .medium))
+                                )
+                        })
                     }
                 }
-                if Int(mapVM.skResponse?.searchPoiInfo.totalCount ?? "") ?? 0 > resultArray.count {
-                    Button(action: {
-                        loadMoreResults()
-                    }, label: {
-                        RoundedRectangle(cornerRadius: 5)
-                            .frame(width: screenWidth * 0.95, height: 55)
-                            .foregroundColor(.clear)
-                            .overlay (
-                                Text("검색 결과 더보기")
-                                    .font(.system(size: 15.5, weight: .medium))
-                            )
-                    })
+                .listStyle(PlainListStyle())
+            }
+            .overlay {
+                // 음성 녹음 마이크 뷰 (overlay)
+                if isShowingMic {
+                    MicRecordView(query: $query, isShowingMic: $isShowingMic)
                 }
             }
-            .listStyle(PlainListStyle())
-        }
+
         .onAppear {
             if searchMode == .startingPoint {
                 isStartingPointEqualsUserLocation = false

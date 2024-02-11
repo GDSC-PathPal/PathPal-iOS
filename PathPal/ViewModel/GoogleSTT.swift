@@ -243,6 +243,8 @@ class SpeechRecognitionService {
             // authenticate using an API key obtained from the Google Cloud Console
             call.requestHeaders.setObject(sttApiKey,
                                           forKey:NSString(string:"X-Goog-Api-Key"))
+            print(sttApiKey)
+            // if the API key has a bundle ID restriction, specify the bundle ID like this
             call.requestHeaders.setObject(NSString(string:Bundle.main.bundleIdentifier!),
                                           forKey:NSString(string:"X-Ios-Bundle-Identifier"))
             
@@ -259,7 +261,7 @@ class SpeechRecognitionService {
             let recognitionConfig = RecognitionConfig()
             recognitionConfig.encoding =  .linear16
             recognitionConfig.sampleRateHertz = Int32(sampleRate)
-            //            recognitionConfig.languageCode = "en-US"
+//            recognitionConfig.languageCode = "en-US"
             recognitionConfig.languageCode = "ko-KR"
             recognitionConfig.maxAlternatives = 30
             recognitionConfig.enableWordTimeOffsets = true
