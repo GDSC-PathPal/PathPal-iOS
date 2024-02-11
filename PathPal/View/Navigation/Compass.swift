@@ -61,6 +61,10 @@ struct Compass: View {
                 })
             })
         }
+        .onAppear {
+            mapVM.hasTriggeredHapticFeedback = false
+            mapVM.isHeadingRightDirection = false
+        }
         .onReceive(mapVM.$isHeadingRightDirection, perform: { isHeading in
             if isHeading && !mapVM.hasTriggeredHapticFeedback {
                 triggerHapticFeedback()

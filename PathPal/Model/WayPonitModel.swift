@@ -8,8 +8,8 @@
 import Foundation
 
 struct WayPoint {
-    var longitude: String?
-    var latitude: String?
+    var longitude: Double?
+    var latitude: Double?
     var name: String?
     var description: String?
     var turnType: String?

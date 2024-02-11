@@ -40,7 +40,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     //올바른 출발 방향 관련 변수
     @Published var startHeading: Double?
     @Published var isHeadingRightDirection: Bool = false
-    @Published var hasTriggeredHapticFeedback: Bool = false  // 진동 발생 여부 추적
+    @Published var hasTriggeredHapticFeedback: Bool = false
 
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
@@ -81,23 +81,23 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-        userHeading = bearing  // 사용자의 최신 헤딩 업데이트
+        userHeading = bearing // 사용자의 최신 헤딩 업데이트
         
-        let previousHeading = isHeadingRightDirection
+        let startHeadingValue = startHeading ?? 0  // 옵셔널 처리
+        let adjustedStartHeading = startHeadingValue.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
+        let adjustedUserHeading = userHeading.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
 
-        // 출발지 방향과 사용자의 현재 방향이 일치하는지 확인
-        //오차
-        if let startHeading = startHeading, userHeading.isClose(to: startHeading, within: 5) {
+        // 오차 범위 내에서 방향이 일치하는지 확인 (예: 오차 범위를 20도로 설정)
+        if adjustedUserHeading.isClose(to: adjustedStartHeading, within: 8) {
             isHeadingRightDirection = true
         } else {
             isHeadingRightDirection = false
         }
-        
-        if isHeadingRightDirection, !previousHeading, !hasTriggeredHapticFeedback {
-            hasTriggeredHapticFeedback = true  // 진동 발생 표시
-        }
+//        print("adjustedUserHeading", adjustedUserHeading)
+//        print("adjustedStartHeading", adjustedStartHeading)
+//        print("올바른 방향 가리킴 : ", isHeadingRightDirection)
     }
-    
+
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in
             let targetUrl = "https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=\(query)&searchType=all&page=\(page)&count=15&resCoordType=WGS84GEO&multiPoint=N&searchtypCd=R&radius=0&reqCoordType=WGS84GEO&poiGroupYn=N&centerLon=\(longitude)&centerLat=\(latitude)"
@@ -392,11 +392,18 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func updateMapWithRoute() {
-        // 출발지와 첫 번째 경유지 사이의 방향 계산
-        if coordinatesForMap.count >= 2 {
-            let start = coordinatesForMap[0]
-            let nextWaypoint = coordinatesForMap[1]
-            startHeading = calculateBearing(from: start, to: nextWaypoint)
+        print("updateMapWithRoute함수가 불릴 때 wayPonritArray 요소 개수 : ", wayPointArray.count)
+        // `wayPointArray`의 첫 번째와 두 번째 요소를 사용하여 방향 계산
+        if wayPointArray.count >= 2 {
+            let startWayPoint = wayPointArray[0]
+            let nextWayPoint = wayPointArray[1]
+            
+            // `CLLocationCoordinate2D` 타입으로 변환
+            let startLocation = CLLocationCoordinate2D(latitude: startWayPoint.latitude ?? 0, longitude: startWayPoint.longitude ?? 0)
+            let nextLocation = CLLocationCoordinate2D(latitude: nextWayPoint.latitude ?? 0, longitude: nextWayPoint.longitude ?? 0)
+            
+            // 방향 계산
+            startHeading = calculateBearing(from: startLocation, to: nextLocation)
         }
     }
     
@@ -408,6 +415,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 let wayPoint = combinePointAndLineStringFeatures(pointFeature: feature, lineStringFeature: features[index + 1])
                 self.wayPointArray.append(wayPoint)
             }
+        }
+        if wayPointArray.count >= 2 {
+            self.updateMapWithRoute()
         }
         print("경유지 배열!", self.wayPointArray)
     }
@@ -437,8 +447,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         let lineStringTime = lineStringFeature.properties.time ?? 0
 
         return WayPoint(
-            longitude: longitude.description,
-            latitude: latitude.description,
+            longitude: longitude,
+            latitude: latitude,
             name: pointName,
             description: pointDescription,
             turnType: pointTurnType.description,
@@ -488,9 +498,6 @@ extension MapViewModel {
         }
 
         self.coordinatesForMap = routeCoordinates
-        if coordinatesForMap.count >= 2 {
-            self.updateMapWithRoute()
-        }
     }
     
     func calculateBearing(from start: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) -> Double {
@@ -501,21 +508,28 @@ extension MapViewModel {
         let lon2 = destination.longitude.toRadians()
 
         let dLon = lon2 - lon1
-
         let y = sin(dLon) * cos(lat2)
         let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
         let radiansBearing = atan2(y, x)
 
-        return radiansBearing.toDegrees()
+        // radiansBearing을 도(degree) 단위로 변환한 후, 음수일 경우 360을 더하여 양수로 조정
+        var degreesBearing = radiansBearing.toDegrees()
+        if degreesBearing < 0 {
+            degreesBearing += 360
+        }
+
+        return degreesBearing
     }
 }
 
-// Double 타입 확장으로 라디안-도 변환 및 값 비교 메서드 추가
 extension Double {
-    func toRadians() -> Double { return self * .pi / 180 }
-    func toDegrees() -> Double { return self * 180 / .pi }
-
-    func isClose(to value: Double, within delta: Double) -> Bool {
-        return abs(self - value) <= delta
+    func toRadians() -> Double {
+        return self * .pi / 180.0
+    }
+    func toDegrees() -> Double {
+        return self * 180.0 / .pi
+    }
+    func isClose(to other: Double, within delta: Double) -> Bool {
+        return abs(self - other) <= delta
     }
 }
