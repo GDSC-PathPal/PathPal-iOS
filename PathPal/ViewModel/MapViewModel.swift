@@ -15,7 +15,7 @@ let TMAP_APP_KEY = Bundle.main.object(forInfoDictionaryKey: "TMAP_APP_KEY") as? 
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var userLocation: CLLocation = CLLocation(latitude: 2.111111, longitude: 2.111111)
-    @Published var userHeading: CLLocationDirection = CLLocationDirection()
+
     
     @Published var destination: PoiDetail = PoiDetail(id: "", name: "")
     @Published var startingPoint: PoiDetail = PoiDetail(id: "", name: "")
@@ -32,13 +32,18 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     @Published var wayPointArray: [WayPoint] = []
     
+    @Published var currentWayPointIndex: Int = 0
+    @Published var resultString: String = ""
+    
     var cancellables = Set<AnyCancellable>()
     
     //지도에 표시될 마커들
     @Published var coordinatesForMap: [CLLocationCoordinate2D] = []
 
     //올바른 출발 방향 관련 변수
+    @Published var userHeading: CLLocationDirection = CLLocationDirection()
     @Published var startHeading: Double?
+    @Published var adjustedStartHeading: CLLocationDirection?
     @Published var isHeadingRightDirection: Bool = false
     @Published var hasTriggeredHapticFeedback: Bool = false
 
@@ -68,27 +73,22 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            lastLocation = location
-            userLocation = location  // 사용자의 최신 위치 업데이트
-            
-            // 출발지 좌표 업데이트
-            startingPoint.noorLon = String(format: "%.6f", location.coordinate.longitude)
-            startingPoint.noorLat = String(format: "%.6f", location.coordinate.latitude)
-            isLoading = false
-        }
+        guard let location = locations.last else { return }
+        lastLocation = location
+        userLocation = location  // 사용자의 최신 위치 업데이트
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        bearing = newHeading.trueHeading != -1 ? newHeading.trueHeading : newHeading.magneticHeading
-        userHeading = bearing // 사용자의 최신 헤딩 업데이트
+        if newHeading.trueHeading >= 0 {
+            userHeading = newHeading.trueHeading // 사용자의 실제 방향을 userHeading으로 설정
+        }
         
         let startHeadingValue = startHeading ?? 0  // 옵셔널 처리
-        let adjustedStartHeading = startHeadingValue.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
+        self.adjustedStartHeading = startHeadingValue.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
         let adjustedUserHeading = userHeading.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
-
-        // 오차 범위 내에서 방향이 일치하는지 확인 (예: 오차 범위를 20도로 설정)
-        if adjustedUserHeading.isClose(to: adjustedStartHeading, within: 8) {
+        
+        // 오차 범위 내에서 방향이 일치하는지 확인 (예: 오차 범위를 8도로 설정)
+        if adjustedUserHeading.difference(from: self.adjustedStartHeading ?? 0) <= 5 {
             isHeadingRightDirection = true
         } else {
             isHeadingRightDirection = false
@@ -97,6 +97,17 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 //        print("adjustedStartHeading", adjustedStartHeading)
 //        print("올바른 방향 가리킴 : ", isHeadingRightDirection)
     }
+    
+    func updateMapWithRoute() {
+        if wayPointArray.count >= 2 {
+            let startLocation = CLLocationCoordinate2D(latitude: wayPointArray[0].latitude ?? 0, longitude: wayPointArray[0].longitude ?? 0)
+            let nextLocation = CLLocationCoordinate2D(latitude: wayPointArray[1].latitude ?? 0, longitude: wayPointArray[1].longitude ?? 0)
+            
+            // startHeading을 첫 번째와 두 번째 wayPoint 사이의 절대 방향으로 설정
+            startHeading = calculateBearing(from: startLocation, to: nextLocation)
+        }
+    }
+
 
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in
@@ -391,20 +402,13 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
     
-    func updateMapWithRoute() {
-        print("updateMapWithRoute함수가 불릴 때 wayPonritArray 요소 개수 : ", wayPointArray.count)
-        // `wayPointArray`의 첫 번째와 두 번째 요소를 사용하여 방향 계산
-        if wayPointArray.count >= 2 {
-            let startWayPoint = wayPointArray[0]
-            let nextWayPoint = wayPointArray[1]
-            
-            // `CLLocationCoordinate2D` 타입으로 변환
-            let startLocation = CLLocationCoordinate2D(latitude: startWayPoint.latitude ?? 0, longitude: startWayPoint.longitude ?? 0)
-            let nextLocation = CLLocationCoordinate2D(latitude: nextWayPoint.latitude ?? 0, longitude: nextWayPoint.longitude ?? 0)
-            
-            // 방향 계산
-            startHeading = calculateBearing(from: startLocation, to: nextLocation)
-        }
+    //실시간 네비게이션 서비스
+    func startRealTimeNavigation() {
+        
+    }
+    
+    func stopRealTimeNavigation() {
+        
     }
     
     func extractWayPoints(from routeResponse: RouteResponse){
@@ -418,11 +422,32 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         if wayPointArray.count >= 2 {
             self.updateMapWithRoute()
+            if currentWayPointIndex < wayPointArray.count {
+                let currentWayPoint = wayPointArray[currentWayPointIndex]
+                let wayPointLocation = CLLocation(latitude: currentWayPoint.latitude ?? 0, longitude: currentWayPoint.longitude ?? 0)
+                
+                print("현재와 다음 경유지 : ", wayPointArray[currentWayPointIndex].name, wayPointArray[currentWayPointIndex + 1].name)
+                if userLocation.distance(from: wayPointLocation) <= 10 {
+                    // 1m 이내로 접근한 경우
+                    let instruction = formatInstruction(description: currentWayPoint.description ?? "", turnType: currentWayPoint.turnType ?? 0)
+                    let direction = directionDescription(from: currentWayPoint.turnType ?? 0)
+                    let facility = facilityDescription(from: currentWayPoint.facilityType)
+                    let time = currentWayPoint.time ?? ""
+                    
+                    resultString = "\(instruction) \(facility) \(direction) \(time)입니다."
+                    print("실시간 네비게이션 :", resultString)
+                    
+                    // 다음 경유지로 인덱스 업데이트
+                    currentWayPointIndex += 1
+                    updateNavigationInfo(for: userLocation)
+
+                }
+            }
+
         }
         print("경유지 배열!", self.wayPointArray)
     }
     
-    //실시간 안내를 위한 웨이포인트
     func combinePointAndLineStringFeatures(pointFeature: Feature, lineStringFeature: Feature) -> WayPoint {
         // 'Point' 타입 Feature의 좌표
         let pointCoordinates: [Double] = {
@@ -451,11 +476,35 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             latitude: latitude,
             name: pointName,
             description: pointDescription,
-            turnType: pointTurnType.description,
+            turnType: pointTurnType,
             facilityType: pointFacilityType.description,
-            roadType: lineStringRoadType.description,
+            roadType: lineStringRoadType,
             time: lineStringTime.description
         )
+    }
+}
+
+//실시간 네비게이션 관련 기능
+extension MapViewModel {
+
+    func updateNavigationInfo(for location: CLLocation) {
+        guard currentWayPointIndex < wayPointArray.count else { return }
+
+        let currentWayPoint = wayPointArray[currentWayPointIndex]
+        let wayPointLocation = CLLocation(latitude: currentWayPoint.latitude ?? 0, longitude: currentWayPoint.longitude ?? 0)
+
+        if location.distance(from: wayPointLocation) <= 1 {  // 1m 이내로 접근 시
+            let instruction = formatInstruction(description: currentWayPoint.description ?? "", turnType: currentWayPoint.turnType ?? 0)
+            let facility = facilityDescription(from: currentWayPoint.facilityType)
+            let direction = directionDescription(from: currentWayPoint.turnType ?? 0)
+            let roadType = roadTypeDescription(from: currentWayPoint.roadType)
+            let time = currentWayPoint.time ?? ""
+
+            resultString = "\(instruction) \(facility) \(direction) \(roadType) \(time)입니다."
+            print("resultString in updateNavigationInfo", resultString)
+
+            currentWayPointIndex += 1  // 다음 경유지로 인덱스 업데이트
+        }
     }
 }
 
@@ -471,7 +520,6 @@ extension MapViewModel {
                 coordinates.append(coordinate)
             }
         }
-        
         return coordinates
     }
 
@@ -531,5 +579,13 @@ extension Double {
     }
     func isClose(to other: Double, within delta: Double) -> Bool {
         return abs(self - other) <= delta
+    }
+}
+
+extension CLLocationDirection {
+    // 두 각도 사이의 최소 차이를 계산
+    func difference(from other: CLLocationDirection) -> CLLocationDirection {
+        let diff = abs(self - other).truncatingRemainder(dividingBy: 360)
+        return min(diff, 360 - diff)
     }
 }

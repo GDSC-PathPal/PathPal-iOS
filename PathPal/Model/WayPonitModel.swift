@@ -12,8 +12,8 @@ struct WayPoint {
     var latitude: Double?
     var name: String?
     var description: String?
-    var turnType: String?
+    var turnType: Int?
     var facilityType: String?
-    var roadType: String?
+    var roadType: Int?
     var time: String?
 }

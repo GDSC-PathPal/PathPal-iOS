@@ -59,6 +59,7 @@ struct GoogleMapsView: UIViewRepresentable {
             let startCoordinate = CLLocationCoordinate2D(latitude: startLat, longitude: startLon)
             let startMarker = GMSMarker(position: startCoordinate)
             startMarker.title = "출발지"
+            startMarker.icon = GMSMarker.markerImage(with: .blue) // 빨간색 마커로 설정
             startMarker.map = uiView
         }
         
@@ -67,6 +68,7 @@ struct GoogleMapsView: UIViewRepresentable {
             let endCoordinate = CLLocationCoordinate2D(latitude: endLat, longitude: endLon)
             let endMarker = GMSMarker(position: endCoordinate)
             endMarker.title = "도착지"
+            endMarker.icon = GMSMarker.markerImage(with: .red) // 빨간색 마커로 설정
             endMarker.map = uiView
         }
     }
