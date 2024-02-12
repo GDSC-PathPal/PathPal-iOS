@@ -29,7 +29,7 @@
 		098E247B2B665C6D0003517F /* ReviewPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098E247A2B665C6D0003517F /* ReviewPage.swift */; };
 		09F597BB2B738A7C0073B2F8 /* SocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BA2B738A7C0073B2F8 /* SocketManager.swift */; };
 		09F597BD2B74CAA70073B2F8 /* GoogleSTT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BC2B74CAA70073B2F8 /* GoogleSTT.swift */; };
-		09F597BF2B74DBA40073B2F8 /* STT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BE2B74DBA40073B2F8 /* STT.swift */; };
+		09F597BF2B74DBA40073B2F8 /* MicRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F597BE2B74DBA40073B2F8 /* MicRecordView.swift */; };
 		BAEC2CB0F7A7D31CD5B83BEE /* Pods_PathPal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */; };
 /* End PBXBuildFile section */
 
@@ -58,7 +58,7 @@
 		098E247A2B665C6D0003517F /* ReviewPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPage.swift; sourceTree = "<group>"; };
 		09F597BA2B738A7C0073B2F8 /* SocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketManager.swift; sourceTree = "<group>"; };
 		09F597BC2B74CAA70073B2F8 /* GoogleSTT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSTT.swift; sourceTree = "<group>"; };
-		09F597BE2B74DBA40073B2F8 /* STT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STT.swift; sourceTree = "<group>"; };
+		09F597BE2B74DBA40073B2F8 /* MicRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicRecordView.swift; sourceTree = "<group>"; };
 		7C7B0305E9439FAEEAACBD55 /* Pods-PathPal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.debug.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.debug.xcconfig"; sourceTree = "<group>"; };
 		8343B3F5DA14839E495E7F27 /* Pods-PathPal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PathPal.release.xcconfig"; path = "Target Support Files/Pods-PathPal/Pods-PathPal.release.xcconfig"; sourceTree = "<group>"; };
 		C9313D311FA02BA7D473CCD6 /* Pods_PathPal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PathPal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,9 +89,9 @@
 		0919EC6D2B3AC7230012F661 /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
-				09F597BE2B74DBA40073B2F8 /* STT.swift */,
 				0919EC7A2B3ACD990012F661 /* NavigationPage.swift */,
 				097087A02B4AA413004766E3 /* Search.swift */,
+				09F597BE2B74DBA40073B2F8 /* MicRecordView.swift */,
 				0919EC822B3ACF640012F661 /* Compass.swift */,
 				0919EC742B3AC76D0012F661 /* Map.swift */,
 				0919EC802B3ACEAE0012F661 /* RouteModal.swift */,
@@ -354,7 +354,7 @@
 				0919EC7B2B3ACD990012F661 /* NavigationPage.swift in Sources */,
 				098E247B2B665C6D0003517F /* ReviewPage.swift in Sources */,
 				0919EC752B3AC76D0012F661 /* Map.swift in Sources */,
-				09F597BF2B74DBA40073B2F8 /* STT.swift in Sources */,
+				09F597BF2B74DBA40073B2F8 /* MicRecordView.swift in Sources */,
 				096CE2A62B3AC5B3001D0E2E /* PathPalApp.swift in Sources */,
 				097087A12B4AA413004766E3 /* Search.swift in Sources */,
 				0919EC812B3ACEAE0012F661 /* RouteModal.swift in Sources */,

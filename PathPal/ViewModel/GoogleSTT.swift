@@ -17,11 +17,15 @@ class GoogleSpeechManager: ObservableObject {
     @Published var transcript = ""
     var prevTranscript = ""
     @Published var isFinal = false
+    @Published var isRecording: Bool = false
+    @Published var isRunningAudioSession: Bool = false
     
     var audioData: NSMutableData!
     let SAMPLE_RATE = 16000
     
     func startRecording() {
+        isRecording = true
+        isRunningAudioSession = true
         audioData = NSMutableData()
         _ = AudioController.sharedInstance.prepare(specifiedSampleRate: SAMPLE_RATE, processSampleDataCallback: processSampleData)
         SpeechRecognitionService.sharedInstance.sampleRate = SAMPLE_RATE
@@ -31,6 +35,8 @@ class GoogleSpeechManager: ObservableObject {
     func stopRecording() {
         _ = AudioController.sharedInstance.stop()
         SpeechRecognitionService.sharedInstance.stopStreaming()
+        isRecording = false
+        isRunningAudioSession = false
     }
     
     func getPrevTranscript() -> String {
