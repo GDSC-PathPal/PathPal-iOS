@@ -40,9 +40,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var coordinatesForMap: [CLLocationCoordinate2D] = []
     
     //올바른 출발 방향 관련 변수
+    var directionAdjustValue: Double = 20
     @Published var userHeading: CLLocationDirection = CLLocationDirection()
-    @Published var startHeading: Double?
-    @Published var adjustedStartHeading: CLLocationDirection?
+    @Published var startDirection: CLLocationDirection = CLLocationDirection()
     @Published var isHeadingRightDirection: Bool = false
     @Published var hasTriggeredHapticFeedback: Bool = false
     
@@ -78,23 +78,15 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        if newHeading.trueHeading >= 0 {
-            userHeading = newHeading.trueHeading // 사용자의 실제 방향을 userHeading으로 설정
-        }
+        userHeading = newHeading.trueHeading - directionAdjustValue
         
-        let startHeadingValue = startHeading ?? 0  // 옵셔널 처리
-        self.adjustedStartHeading = startHeadingValue.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
-        let adjustedUserHeading = userHeading.truncatingRemainder(dividingBy: 360)  // 0~359 범위로 조정
-        
-        // 오차 범위 내에서 방향이 일치하는지 확인 (예: 오차 범위를 8도로 설정)
-        if adjustedUserHeading.difference(from: self.adjustedStartHeading ?? 0) <= 5 {
+        if isCorrectDirection(bearing: startDirection, heading: userHeading) {
             isHeadingRightDirection = true
-        } else {
-            isHeadingRightDirection = false
         }
-        //        print("adjustedUserHeading", adjustedUserHeading)
-        //        print("adjustedStartHeading", adjustedStartHeading)
-        //        print("올바른 방향 가리킴 : ", isHeadingRightDirection)
+        
+        print("현재 방향 : ", userHeading)
+        print("출발 방향 : ", startDirection)
+        print(isHeadingRightDirection)
     }
     
     func updateMapWithRoute() {
@@ -102,10 +94,25 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             let startLocation = CLLocationCoordinate2D(latitude: wayPointArray[0].latitude ?? 0, longitude: wayPointArray[0].longitude ?? 0)
             let nextLocation = CLLocationCoordinate2D(latitude: wayPointArray[1].latitude ?? 0, longitude: wayPointArray[1].longitude ?? 0)
             
-            // startHeading을 첫 번째와 두 번째 wayPoint 사이의 절대 방향으로 설정
-            startHeading = calculateBearing(from: startLocation, to: nextLocation)
+            //startDirection 계산
+            var firstIndexCLLocation = CLLocation(latitude: wayPointArray[0].latitude ?? 0, longitude: wayPointArray[0].longitude ?? 0)
+            var secondIndexCLLocation = CLLocation(latitude: wayPointArray[1].latitude ?? 0, longitude: wayPointArray[1].longitude ?? 0)
+            
+            self.startDirection = calculateDirection(from: firstIndexCLLocation, to: secondIndexCLLocation) - directionAdjustValue
         }
     }
+    
+    func isCorrectDirection(bearing: CLLocationDirection, heading: CLLocationDirection) -> Bool {
+        // 두 방향 간의 차이를 계산합니다. 결과는 -360 ~ 360도 사이의 값이 될 수 있습니다.
+        let difference = bearing - heading
+        
+        // 차이를 -180 ~ 180도 범위로 정규화합니다.
+        let normalizedDifference = (difference + 180).truncatingRemainder(dividingBy: 360) - 180
+        
+        // 정규화된 차이의 절대값이 5도 이내인지 확인합니다.
+        return abs(normalizedDifference) <= 5
+    }
+
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in
@@ -430,7 +437,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                     // 다음 경유지로 인덱스 업데이트
                     currentWayPointIndex += 1
                     updateNavigationInfo(for: userLocation)
-                    
                 }
             }
             
@@ -547,44 +553,31 @@ extension MapViewModel {
         self.coordinatesForMap = routeCoordinates
     }
     
-    func calculateBearing(from start: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) -> Double {
-        let lat1 = start.latitude.toRadians()
-        let lon1 = start.longitude.toRadians()
-        
-        let lat2 = destination.latitude.toRadians()
-        let lon2 = destination.longitude.toRadians()
-        
+    func calculateDirection(from startLocation: CLLocation, to endLocation: CLLocation) -> CLLocationDirection {
+        let lat1 = startLocation.coordinate.latitude.toRadians()
+        let lon1 = startLocation.coordinate.longitude.toRadians()
+
+        let lat2 = endLocation.coordinate.latitude.toRadians()
+        let lon2 = endLocation.coordinate.longitude.toRadians()
+
         let dLon = lon2 - lon1
+
         let y = sin(dLon) * cos(lat2)
         let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
         let radiansBearing = atan2(y, x)
+
+        let degreesBearing = radiansBearing.toDegrees()
         
-        // radiansBearing을 도(degree) 단위로 변환한 후, 음수일 경우 360을 더하여 양수로 조정
-        var degreesBearing = radiansBearing.toDegrees()
-        if degreesBearing < 0 {
-            degreesBearing += 360
-        }
-        
-        return degreesBearing
+        return (degreesBearing + 360).truncatingRemainder(dividingBy: 360) // 0도에서 360도 사이의 값으로 정규화
     }
 }
 
-extension Double {
+extension CLLocationDegrees {
     func toRadians() -> Double {
         return self * .pi / 180.0
     }
+
     func toDegrees() -> Double {
         return self * 180.0 / .pi
-    }
-    func isClose(to other: Double, within delta: Double) -> Bool {
-        return abs(self - other) <= delta
-    }
-}
-
-extension CLLocationDirection {
-    // 두 각도 사이의 최소 차이를 계산
-    func difference(from other: CLLocationDirection) -> CLLocationDirection {
-        let diff = abs(self - other).truncatingRemainder(dividingBy: 360)
-        return min(diff, 360 - diff)
     }
 }

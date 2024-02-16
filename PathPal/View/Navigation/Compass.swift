@@ -38,13 +38,13 @@ struct Compass: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: screenWidth * 0.7)
-                    .rotationEffect(.degrees(-(mapVM.userHeading ?? 0) - 2)) // 사용자의 현재 방향을 반영하여 회전
+                    .rotationEffect(.degrees(-(mapVM.userHeading))) // 사용자의 현재 방향을 반영하여 회전
+//                    .rotationEffect(.degrees(mapVM.startDirection))
                 // 내 방향을 가리키는 화살표 (사용자 방향에 따라 회전)
                 Image("CompassCenter")
                     .resizable()
                     .scaledToFit()
                     .frame(width: screenWidth * 0.8)
-                    .rotationEffect(.degrees((mapVM.startHeading ?? 0) + compassDegreeAdjustment))
             }
             .accessibilityHidden(true)
             NavigationLink(destination: VisionView(mapVM: mapVM), isActive: $navigateToVisionPage) {
