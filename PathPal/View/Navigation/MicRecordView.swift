@@ -65,6 +65,9 @@ struct MicRecordView: View {
             .foregroundStyle(Color.white)
             .frame(width: screenWidth * 0.87, height: screenHeight * 0.6)
         }
+        .onAppear {
+            query = ""
+        }
         .onChange(of: sttManager.isFinal) { isFinal in
             if isFinal {
                 transcripts.append(sttManager.getPrevTranscript())

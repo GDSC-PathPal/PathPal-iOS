@@ -98,7 +98,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 let roadType = roadTypeDescription(from: wayPointArray[currentWayPointIndex].roadType)
                 let time = wayPointArray[currentWayPointIndex].time ?? ""
                 
-                resultString = "\(instruction) \(facility) \(direction) \(roadType) \(time)입니다."
+                resultString = "\(instruction)하세요. 약 \(formatTimeInSeconds(timeInSeconds: time)) 정도 이동하세요."
                 print("실시간 네비게이션 :", resultString)
                 
                 
@@ -126,10 +126,25 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         if isCorrectDirection(bearing: startDirection, heading: userHeading) {
             isHeadingRightDirection = true
         }
-        
 //        print("현재 방향 : ", userHeading)
 //        print("출발 방향 : ", startDirection)
 //        print(isHeadingRightDirection)
+    }
+    
+    func formatTimeInSeconds(timeInSeconds: String) -> String {
+        
+        var resultTime: String = ""
+        // 시간 변환: 분과 초로 변환
+        let timeInSecondsInt = Int(timeInSeconds) ?? 0
+        let minutes = timeInSecondsInt / 60
+        let seconds = timeInSecondsInt % 60
+        
+        if minutes > 0 {
+            resultTime = "\(minutes)분 \(seconds)초"
+        } else {
+            resultTime = "\(seconds)초"
+        }
+        return resultTime
     }
     
     func isCorrectDirection(bearing: CLLocationDirection, heading: CLLocationDirection) -> Bool {
