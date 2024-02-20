@@ -204,7 +204,6 @@ struct NavigationPage: View {
                                     }
                                 }
                                 .padding(.bottom)
-                                
                             }
                             // 출발하기
                             VStack {
@@ -284,7 +283,7 @@ struct NavigationPage: View {
         mapVM.fetchRoute(parameters: parameters)
             .sink(receiveCompletion: { _ in
             }, receiveValue: { data in
-                print("경로 데이터 : ", data)
+//                print("경로 데이터 : ", data)
                 mapVM.parseRouteCoordinates(routeResponse: data)
                 mapVM.routeProperties = data.features[0].properties
                 print("캐싱한 porperty 데이터", mapVM.routeProperties)

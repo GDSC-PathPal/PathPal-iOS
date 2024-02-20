@@ -33,11 +33,12 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var routeInstruction: [String]?
     
     @Published var wayPointArray: [WayPoint] = []
-    
-    @Published var hasArrived: Bool = false
-    
+    @Published var CurrentWayPointLocation: CLLocation = CLLocation()
     @Published var currentWayPointIndex: Int = 0
     @Published var resultString: String = ""
+    @Published var hasArrivedWayPoint: Bool = false
+    
+    @Published var hasArrived: Bool = false
     
     var cancellables = Set<AnyCancellable>()
     
@@ -84,9 +85,35 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             let userLocation = CLLocation(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude)
             let destinationLocation = CLLocation(latitude: Double(destinationLat) ?? 0.0, longitude: Double(destinationLon) ?? 0.0)
 
+            //경유지 모니터링
+            if currentWayPointIndex < wayPointArray.count {
+                //다음 경유지 설정
+                let nextWayPoint = wayPointArray[currentWayPointIndex]
+                self.CurrentWayPointLocation = CLLocation(latitude: nextWayPoint.latitude ?? 0, longitude: nextWayPoint.longitude ?? 0)
+                
+                //네비게이션 안내문 resultString
+                let instruction = formatInstruction(description: wayPointArray[currentWayPointIndex].description ?? "", turnType: wayPointArray[currentWayPointIndex].turnType ?? 0)
+                let direction = directionDescription(from: wayPointArray[currentWayPointIndex].turnType ?? 0)
+                let facility = facilityDescription(from: wayPointArray[currentWayPointIndex].facilityType)
+                let roadType = roadTypeDescription(from: wayPointArray[currentWayPointIndex].roadType)
+                let time = wayPointArray[currentWayPointIndex].time ?? ""
+                
+                resultString = "\(instruction) \(facility) \(direction) \(roadType) \(time)입니다."
+                print("실시간 네비게이션 :", resultString)
+                
+                
+                //경유지 오차
+                if userLocation.distance(from: CurrentWayPointLocation) <= 20 {
+                    hasArrivedWayPoint = true
+                    // 다음 경유지로 인덱스 업데이트
+                    currentWayPointIndex += 1
+                    speechService.speak(text: resultString)
+                    hasArrivedWayPoint = false
+                }
+            }
+                
             let distance = userLocation.distance(from: destinationLocation) // 두 지점 사이의 거리를 미터 단위로 계산
-
-            if distance <= 50 && !hasArrived { // 1.5미터 이내의 오차를 허용
+            if distance <= 30 && !hasArrived {
                 speechService.speak(text: "목적지에 도착했습니다")
                 self.hasArrived = true
             }
@@ -100,9 +127,9 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             isHeadingRightDirection = true
         }
         
-        print("현재 방향 : ", userHeading)
-        print("출발 방향 : ", startDirection)
-        print(isHeadingRightDirection)
+//        print("현재 방향 : ", userHeading)
+//        print("출발 방향 : ", startDirection)
+//        print(isHeadingRightDirection)
     }
     
     func isCorrectDirection(bearing: CLLocationDirection, heading: CLLocationDirection) -> Bool {
@@ -419,11 +446,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         case "16": return "대형시설물이동통로"
         case "17": return "계단"
         default: return ""
-            
         }
     }
     
-    // 네비에이션
+    //경유지 추출
     func extractWayPoints(from routeResponse: RouteResponse){
         let features = routeResponse.features
         
@@ -438,24 +464,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             if currentWayPointIndex < wayPointArray.count {
                 let currentWayPoint = wayPointArray[currentWayPointIndex]
                 let wayPointLocation = CLLocation(latitude: currentWayPoint.latitude ?? 0, longitude: currentWayPoint.longitude ?? 0)
-                
-                print("현재와 다음 경유지 : ", wayPointArray[currentWayPointIndex].name, wayPointArray[currentWayPointIndex + 1].name)
-                if userLocation.distance(from: wayPointLocation) <= 10 {
-                    // 1m 이내로 접근한 경우
-                    let instruction = formatInstruction(description: currentWayPoint.description ?? "", turnType: currentWayPoint.turnType ?? 0)
-                    let direction = directionDescription(from: currentWayPoint.turnType ?? 0)
-                    let facility = facilityDescription(from: currentWayPoint.facilityType)
-                    let time = currentWayPoint.time ?? ""
-                    
-                    resultString = "\(instruction) \(facility) \(direction) \(time)입니다."
-                    print("실시간 네비게이션 :", resultString)
-                    
-                    // 다음 경유지로 인덱스 업데이트
-                    currentWayPointIndex += 1
-                    updateNavigationInfo(for: userLocation)
-                }
             }
-            
         }
         print("경유지 배열!", self.wayPointArray)
     }
@@ -493,39 +502,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             roadType: lineStringRoadType,
             time: lineStringTime.description
         )
-    }
-    
-    //실시간 네비게이션 서비스
-    func startRealTimeNavigation() {
-        
-    }
-    
-    func stopRealTimeNavigation() {
-        
-    }
-}
-
-//실시간 네비게이션 관련 기능
-extension MapViewModel {
-    
-    func updateNavigationInfo(for location: CLLocation) {
-        guard currentWayPointIndex < wayPointArray.count else { return }
-        
-        let currentWayPoint = wayPointArray[currentWayPointIndex]
-        let wayPointLocation = CLLocation(latitude: currentWayPoint.latitude ?? 0, longitude: currentWayPoint.longitude ?? 0)
-        
-        if location.distance(from: wayPointLocation) <= 1 {  // 1m 이내로 접근 시
-            let instruction = formatInstruction(description: currentWayPoint.description ?? "", turnType: currentWayPoint.turnType ?? 0)
-            let facility = facilityDescription(from: currentWayPoint.facilityType)
-            let direction = directionDescription(from: currentWayPoint.turnType ?? 0)
-            let roadType = roadTypeDescription(from: currentWayPoint.roadType)
-            let time = currentWayPoint.time ?? ""
-            
-            resultString = "\(instruction) \(facility) \(direction) \(roadType) \(time)입니다."
-            print("resultString in updateNavigationInfo", resultString)
-            
-            currentWayPointIndex += 1  // 다음 경유지로 인덱스 업데이트
-        }
     }
 }
 
