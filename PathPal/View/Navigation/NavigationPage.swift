@@ -40,7 +40,7 @@ struct NavigationPage: View {
                         NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.startingPoint), isStartingPointEqualsUserLocation: $isStartingPointEqualsUserLocation)) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
-                                .frame(width: screenWidth * 0.75, height: 50)
+                                .frame(width: screenWidth * 0.85, height: 50)
                                 .overlay {
                                     HStack {
                                         switch isStartingPointEqualsUserLocation {
@@ -71,15 +71,15 @@ struct NavigationPage: View {
                                 }
                         }
                         //출발지 검색어 초기화 버튼
-                        Button(action: {
-                            mapVM.initStartingPoint()
-                            isStartingPointEqualsUserLocation = false
-                            mapVM.hassucceededFetching = false
-                        }, label: {
-                            Image(systemName: "x.circle")
-                                .font(.system(size: 20))
-                        })
-                        .accessibilityLabel(Text("출발지 초기화"))
+                        //                        Button(action: {
+                        //                            mapVM.initStartingPoint()
+                        //                            isStartingPointEqualsUserLocation = false
+                        //                            mapVM.hassucceededFetching = false
+                        //                        }, label: {
+                        //                            Image(systemName: "x.circle")
+                        //                                .font(.system(size: 20))
+                        //                        })
+                        //                        .accessibilityLabel(Text("출발지 초기화"))
                     }
                 }
                 .padding(.bottom)
@@ -93,7 +93,7 @@ struct NavigationPage: View {
                         NavigationLink(destination: SearchView(mapVM: mapVM, searchMode: .constant(SearchMode.destination), isStartingPointEqualsUserLocation: $isStartingPointEqualsUserLocation)) {
                             RoundedRectangle(cornerRadius: 25.5)
                                 .stroke(Color.hexBBD2FF)
-                                .frame(width: screenWidth * 0.75, height: 50)
+                                .frame(width: screenWidth * 0.85, height: 50)
                                 .overlay {
                                     HStack {
                                         if mapVM.destination.name == "" {
@@ -114,14 +114,14 @@ struct NavigationPage: View {
                                 }
                         }
                         //도착지 검색어 초기화 버튼
-                        Button(action: {
-                            mapVM.initDestination()
-                            mapVM.hassucceededFetching = false
-                        }, label: {
-                            Image(systemName: "x.circle")
-                                .font(.system(size: 20))
-                        })
-                        .accessibilityLabel(Text("도착지 초기화"))
+                        //                        Button(action: {
+                        //                            mapVM.initDestination()
+                        //                            mapVM.hassucceededFetching = false
+                        //                        }, label: {
+                        //                            Image(systemName: "x.circle")
+                        //                                .font(.system(size: 20))
+                        //                        })
+                        //                        .accessibilityLabel(Text("도착지 초기화"))
                     }
                 }
                 .padding(.bottom, 40)
@@ -282,10 +282,10 @@ struct NavigationPage: View {
         mapVM.fetchRoute(parameters: parameters)
             .sink(receiveCompletion: { _ in
             }, receiveValue: { data in
-//                print("경로 데이터 : ", data)
+                //                print("경로 데이터 : ", data)
                 mapVM.parseRouteCoordinates(routeResponse: data)
                 mapVM.routeProperties = data.features[0].properties
-//                print("캐싱한 porperty 데이터", mapVM.routeProperties)
+                //                print("캐싱한 porperty 데이터", mapVM.routeProperties)
                 mapVM.generateNavigationInstructions(response: data)
                 //경유지 데이터 삽입
                 mapVM.extractWayPoints(from: data)
