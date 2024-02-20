@@ -14,7 +14,10 @@ import GoogleMaps
 let TMAP_APP_KEY = Bundle.main.object(forInfoDictionaryKey: "TMAP_APP_KEY") as? String ?? ""
 
 class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var userLocation: CLLocation = CLLocation(latitude: 2.111111, longitude: 2.111111)
+    
+    private var speechService: SpeechService = SpeechService()
+    
+    @Published var userLocation: CLLocation = CLLocation()
     
     @Published var destination: PoiDetail = PoiDetail(id: "", name: "")
     @Published var startingPoint: PoiDetail = PoiDetail(id: "", name: "")
@@ -30,6 +33,8 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var routeInstruction: [String]?
     
     @Published var wayPointArray: [WayPoint] = []
+    
+    @Published var hasArrived: Bool = false
     
     @Published var currentWayPointIndex: Int = 0
     @Published var resultString: String = ""
@@ -75,6 +80,17 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         lastLocation = location
         userLocation = location  // 사용자의 최신 위치 업데이트
+        if let destinationLon = self.destination.noorLon, let destinationLat = self.destination.noorLat {
+            let userLocation = CLLocation(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude)
+            let destinationLocation = CLLocation(latitude: Double(destinationLat) ?? 0.0, longitude: Double(destinationLon) ?? 0.0)
+
+            let distance = userLocation.distance(from: destinationLocation) // 두 지점 사이의 거리를 미터 단위로 계산
+
+            if distance <= 50 && !hasArrived { // 1.5미터 이내의 오차를 허용
+                speechService.speak(text: "목적지에 도착했습니다")
+                self.hasArrived = true
+            }
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
@@ -89,6 +105,18 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         print(isHeadingRightDirection)
     }
     
+    func isCorrectDirection(bearing: CLLocationDirection, heading: CLLocationDirection) -> Bool {
+        // 두 방향 간의 차이를 계산합니다. 결과는 -360 ~ 360도 사이의 값이 될 수 있습니다.
+        let difference = bearing - heading
+        
+        // 차이를 -180 ~ 180도 범위로 정규화합니다.
+        let normalizedDifference = (difference + 180).truncatingRemainder(dividingBy: 360) - 180
+        
+        // 정규화된 차이의 절대값이 5도 이내인지 확인합니다.
+        return abs(normalizedDifference) <= 5
+    }
+
+    
     func updateMapWithRoute() {
         if wayPointArray.count >= 2 {
             let startLocation = CLLocationCoordinate2D(latitude: wayPointArray[0].latitude ?? 0, longitude: wayPointArray[0].longitude ?? 0)
@@ -101,18 +129,6 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             self.startDirection = calculateDirection(from: firstIndexCLLocation, to: secondIndexCLLocation) - directionAdjustValue
         }
     }
-    
-    func isCorrectDirection(bearing: CLLocationDirection, heading: CLLocationDirection) -> Bool {
-        // 두 방향 간의 차이를 계산합니다. 결과는 -360 ~ 360도 사이의 값이 될 수 있습니다.
-        let difference = bearing - heading
-        
-        // 차이를 -180 ~ 180도 범위로 정규화합니다.
-        let normalizedDifference = (difference + 180).truncatingRemainder(dividingBy: 360) - 180
-        
-        // 정규화된 차이의 절대값이 5도 이내인지 확인합니다.
-        return abs(normalizedDifference) <= 5
-    }
-
     
     func requestKeywordDataToSK(query: String, longitude: String, latitude: String, page: Int) -> Future<[PoiDetail], Error> {
         return Future { promise in

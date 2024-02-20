@@ -26,10 +26,10 @@ struct ContentView: View {
                         }
                     }
             } else {
-//                GoogleSTTView()
                 NavigationPage(mapVM: mapVM)
-//                MicRecordView()
-//                VisionView(mapVM: mapVM)
+                    .onAppear {
+                        mapVM.hasArrived = false
+                    }
             }
         }
     }
