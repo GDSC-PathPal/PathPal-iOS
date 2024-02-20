@@ -32,6 +32,7 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var extractedMapIds: [String] = []
     @Published var routeInstruction: [String]?
     
+    @Published var hasDepartured: Bool = false
     @Published var wayPointArray: [WayPoint] = []
     @Published var CurrentWayPointLocation: CLLocation = CLLocation()
     @Published var currentWayPointIndex: Int = 0
@@ -98,9 +99,10 @@ class MapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 let roadType = roadTypeDescription(from: wayPointArray[currentWayPointIndex].roadType)
                 let time = wayPointArray[currentWayPointIndex].time ?? ""
                 
-                resultString = "\(instruction)하세요. 약 \(formatTimeInSeconds(timeInSeconds: time)) 정도 이동하세요."
-                print("실시간 네비게이션 :", resultString)
-                
+                if self.hasDepartured {
+                    resultString = "\(instruction)하세요. 약 \(formatTimeInSeconds(timeInSeconds: time)) 정도 이동하세요."
+                    print("실시간 네비게이션 :", resultString)
+                }
                 
                 //경유지 오차
                 if userLocation.distance(from: CurrentWayPointLocation) <= 20 {

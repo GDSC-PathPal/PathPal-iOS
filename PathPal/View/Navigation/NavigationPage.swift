@@ -191,7 +191,6 @@ struct NavigationPage: View {
                                                 }
                                                 .padding(10)
                                                 Divider()
-                                                
                                             }
                                         }
                                         .padding(.horizontal, 10)
@@ -286,7 +285,7 @@ struct NavigationPage: View {
 //                print("경로 데이터 : ", data)
                 mapVM.parseRouteCoordinates(routeResponse: data)
                 mapVM.routeProperties = data.features[0].properties
-                print("캐싱한 porperty 데이터", mapVM.routeProperties)
+//                print("캐싱한 porperty 데이터", mapVM.routeProperties)
                 mapVM.generateNavigationInstructions(response: data)
                 //경유지 데이터 삽입
                 mapVM.extractWayPoints(from: data)

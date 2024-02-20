@@ -120,10 +120,8 @@ struct SearchView: View {
                         mapVM.skResponse?.searchPoiInfo.totalCount = "0"
                         if searchMode == .startingPoint {
                             mapVM.startingPoint = place
-                            speechService.speak(text: "출발지를 \(place.name)으로 설정합니다")
                         } else {
                             mapVM.destination = place
-                            speechService.speak(text: "도착지를 \(place.name)으로 설정합니다")
                         }
                         presentationMode.wrappedValue.dismiss()
                     }

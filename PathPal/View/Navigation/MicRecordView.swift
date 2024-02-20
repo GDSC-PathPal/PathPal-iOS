@@ -25,7 +25,7 @@ struct MicRecordView: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .foregroundColor(.white.opacity(0.6))
+                .foregroundStyle(Color.white)
                 .ignoresSafeArea()
             VStack(spacing: 40) {
                 Button(action: {
@@ -42,30 +42,27 @@ struct MicRecordView: View {
                         Text("음성 인식 중")
                     } else {
                         Text("검색어 : \(query)")
-                        //                            .onChange(of: query) { query in
-                        //                                ttsManager.speak(text: "\(query)를 검색어로 설정합니다")
-                        //                            }
                     }
                 }
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.hex292929)
                 
                 //완료하기 버튼
-                if hasGuidedQuery && !sttManager.isRecording {
-                    Button(action: {
-                        isShowingMic = false
-                    }, label: {
-                        RoundedRectangle(cornerRadius: 20)
-                            .frame(width: screenWidth * 0.6, height: 45)
-                            .foregroundStyle(Color.hex246FFF)
-                            .overlay {
-                                Text("완료하기")
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundStyle(Color.white)
-                            }
-                    })
-                    .foregroundStyle(Color.white)
-                    .frame(width: screenWidth * 0.87, height: screenHeight * 0.6)
+                VStack {
+                    if hasGuidedQuery && !sttManager.isRecording {
+                        Button(action: {
+                            isShowingMic = false
+                        }, label: {
+                            RoundedRectangle(cornerRadius: 20)
+                                .frame(width: screenWidth * 0.6, height: 45)
+                                .foregroundStyle(Color.hex246FFF)
+                                .overlay {
+                                    Text("완료하기")
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundStyle(Color.white)
+                                }
+                        })
+                    }
                 }
             }
         }
@@ -77,8 +74,8 @@ struct MicRecordView: View {
                 transcripts.append(sttManager.getPrevTranscript())
                 if hasAlertRecordEnded {
                     query = transcripts.first ?? ""
-                    let ttsString = "\(query)를 검색어로 설정합니다"
-                    ttsManager.speak(text: ttsString)
+//                    let ttsString = "\(query)를 검색어로 설정합니다"
+//                    ttsManager.speak(text: ttsString)
                     hasGuidedQuery = true
                 }
             }

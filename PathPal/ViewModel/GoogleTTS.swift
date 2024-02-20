@@ -178,18 +178,3 @@ class SpeechService: ObservableObject {
         return dict
     }
 }
-
-// 예시
-
-//struct VisionPage: View {
-//    
-//    @StateObject private var speechService = SpeechService()
-//    var voiceType: VoiceType = .koreanFemale
-//
-//    var body: some View {
-//        Button("음성 듣기") {
-//            speechService.speak(text: "우측에 볼라드 감지", voiceType: voiceType)
-//        }
-//        .disabled(speechService.isBusy)
-//    }
-//}

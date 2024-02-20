@@ -124,14 +124,6 @@ class CameraViewController: UIViewController, ObservableObject, AVCaptureVideoDa
         return nil
     }
     
-    //    func setupWebSocket(totalTime: String) {
-    //        var request = URLRequest(url: websocketURL)
-    //        request.setValue("600", forHTTPHeaderField: "time")
-    //        websocket = WebSocket(request: request)
-    //        websocket.delegate = self
-    //        websocket.connect()
-    //    }
-    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let currentTime = Date()
         if currentTime.timeIntervalSince(lastFrameTime) >= 4.0 {
@@ -171,65 +163,6 @@ class CameraViewController: UIViewController, ObservableObject, AVCaptureVideoDa
             image.draw(in: CGRect(origin: .zero, size: targetSize))
         }
     }
-    
-//    func setupDataProcessing() {
-//        receivedDataSubject
-//            .flatMap(maxPublishers: .max(10)) { jsonString in
-//                // 비동기적으로 데이터를 처리하고 결과를 Just로 감싸 반환
-//                Future<String, Never> { promise in
-//                    DispatchQueue.global(qos: .background).async {
-//                        self.handleWebSocketResponse(jsonString)
-//                        promise(.success(jsonString)) // 처리 후 성공 결과 전달
-//                    }
-//                }
-//            }
-//            .receive(on: DispatchQueue.global(qos: .background))
-//            .sink(receiveValue: { data in
-//                // 결과 처리가 필요한 경우 여기에서 수행
-//            })
-//            .store(in: &cancellables)
-//    }
-    
-//    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
-//        switch event {
-//        case .text(let string):
-//            //            print("Received text: \(string)")
-//            receivedDataSubject.send(string) // 받은 데이터를 Combine 스트림으로 전달
-//        case .disconnected(let reason, let code):
-//            print("WebSocket disconnected: \(reason) with code: \(code)")
-//        case .error(let error):
-//            if let error = error {
-//                print("WebSocket encountered an error: \(error)")
-//            }
-//        default:
-//            break
-//        }
-//    }
-    
-//    func handleWebSocketResponse(_ jsonString: String) {
-//        guard let data = jsonString.data(using: .utf8) else {
-//            print("Error: Unable to convert received text to data")
-//            return
-//        }
-//        
-//        do {
-//            let responseData = try JSONDecoder().decode([ResponseModel].self, from: data)
-//            self.visionResponses = responseData
-//            print("비전 응답 : ", responseData)
-//            for response in responseData {
-//                print("Korean: \(response.koreanTTSString)")
-//                print("Alert Needed: \(response.needAlert)")
-//                //테스트
-//                speechService.speak(text: response.koreanTTSString)
-//                if response.needAlert == "true" {
-//                    AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-//                }
-//                
-//            }
-//        } catch {
-//            print("Error parsing JSON: \(error)")
-//        }
-//    }
 }
 
 struct CameraView: UIViewControllerRepresentable {
@@ -280,6 +213,7 @@ struct VisionView: View {
         }
         .onAppear {
             cameraController?.totalTime = mapVM.routeProperties?.totalTime?.description ?? ""
+            mapVM.hasDepartured = true
         }
         .onDisappear {
             mapVM.hasTriggeredHapticFeedback = false

@@ -14,8 +14,6 @@ struct Compass: View {
     @State var compassDegreeAdjustment: Double = 12.8
     
     var body: some View {
-        NavigationStack {
-            
             VStack(spacing: 30) {
                 VStack {
                     Text("출발 방향 맞추기")
@@ -62,7 +60,7 @@ struct Compass: View {
                     })
                 })
             }
-        }
+        
         .onAppear {
             mapVM.hasTriggeredHapticFeedback = false
             mapVM.isHeadingRightDirection = false
