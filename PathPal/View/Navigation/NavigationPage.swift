@@ -79,7 +79,7 @@ struct NavigationPage: View {
                             Image(systemName: "x.circle")
                                 .font(.system(size: 20))
                         })
-                        .accessibilityLabel(Text("출발지 초기화 버튼"))
+                        .accessibilityLabel(Text("출발지 초기화"))
                     }
                 }
                 .padding(.bottom)
@@ -121,7 +121,7 @@ struct NavigationPage: View {
                             Image(systemName: "x.circle")
                                 .font(.system(size: 20))
                         })
-                        .accessibilityLabel(Text("도착지 초기화 버튼"))
+                        .accessibilityLabel(Text("도착지 초기화"))
                     }
                 }
                 .padding(.bottom, 40)

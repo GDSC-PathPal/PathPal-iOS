@@ -11,7 +11,7 @@ import Combine
 struct SearchView: View {
     
     @ObservedObject var mapVM: MapViewModel
-    
+    @StateObject var speechService: SpeechService = SpeechService()
     enum FocusTextField: Hashable {
         case textField
     }
@@ -43,7 +43,7 @@ struct SearchView: View {
                     .font(.system(size: 18))
                     .foregroundStyle(Color.hex959595)
                     .focused($focusTextField, equals: .textField)
-                    .accessibilityLabel(Text("여기에 검색할 출발지를 입력하세요"))
+//                    .accessibilityHint(Text(searchMode == .startingPoint ? "여기에 검색할 출발지를 입력하세요" : "여기에 검색할 도착지를 입력하세요"))
                     Spacer()
                     Button(action: {
                         self.searchByKeyword(query: self.query, page: 1)
@@ -120,8 +120,10 @@ struct SearchView: View {
                         mapVM.skResponse?.searchPoiInfo.totalCount = "0"
                         if searchMode == .startingPoint {
                             mapVM.startingPoint = place
+                            speechService.speak(text: "출발지를 \(place.name)으로 설정합니다")
                         } else {
                             mapVM.destination = place
+                            speechService.speak(text: "도착지를 \(place.name)으로 설정합니다")
                         }
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -148,7 +150,6 @@ struct SearchView: View {
                 MicRecordView(query: $query, isShowingMic: $isShowingMic)
             }
         }
-        
         .onAppear {
             if searchMode == .startingPoint {
                 isStartingPointEqualsUserLocation = false
