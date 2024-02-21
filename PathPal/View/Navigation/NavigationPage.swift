@@ -70,16 +70,6 @@ struct NavigationPage: View {
                                     .padding()
                                 }
                         }
-                        //출발지 검색어 초기화 버튼
-                        //                        Button(action: {
-                        //                            mapVM.initStartingPoint()
-                        //                            isStartingPointEqualsUserLocation = false
-                        //                            mapVM.hassucceededFetching = false
-                        //                        }, label: {
-                        //                            Image(systemName: "x.circle")
-                        //                                .font(.system(size: 20))
-                        //                        })
-                        //                        .accessibilityLabel(Text("출발지 초기화"))
                     }
                 }
                 .padding(.bottom)
@@ -113,15 +103,6 @@ struct NavigationPage: View {
                                     .padding()
                                 }
                         }
-                        //도착지 검색어 초기화 버튼
-                        //                        Button(action: {
-                        //                            mapVM.initDestination()
-                        //                            mapVM.hassucceededFetching = false
-                        //                        }, label: {
-                        //                            Image(systemName: "x.circle")
-                        //                                .font(.system(size: 20))
-                        //                        })
-                        //                        .accessibilityLabel(Text("도착지 초기화"))
                     }
                 }
                 .padding(.bottom, 40)
@@ -225,6 +206,21 @@ struct NavigationPage: View {
                 }
             }
             .padding(.top, 60)
+            .toolbar {
+                if !(mapVM.routeInstruction?.isEmpty ?? true) {
+                    ToolbarItem(placement: .topBarTrailing, content: {
+                        Button(action: {
+                            mapVM.initStartingPoint()
+                            mapVM.initDestination()
+                            isStartingPointEqualsUserLocation = false
+                        }, label: {
+                            Text("경로 초기화")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(Color.hex246FFF)
+                        })
+                    })
+                }
+            }
         }
         .onAppear(perform: {
             socketManager.setupWebSocket(totalTime: "600")
