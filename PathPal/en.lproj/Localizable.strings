@@ -14,6 +14,7 @@
 "도착지 입력" = "Enter Destination";
 "음성 인식" = "Voice Search";
 "검색 결과 더보기" = "Load More Results";
+"검색어" = "Search Term"
 
 "마이크" = "Microphone";
 "버튼을 눌러 마이크를 켜고 끌 수 있습니다" = "Tap to Toggle Microphone";
