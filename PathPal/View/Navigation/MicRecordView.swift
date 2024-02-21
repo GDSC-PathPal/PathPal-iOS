@@ -17,7 +17,7 @@ struct MicRecordView: View {
     
     @State var transcripts: [String] = []
     @Binding var query: String
-    @State var hasAlertRecordEnded: Bool = false
+//    @State var hasAlertRecordEnded: Bool = false
     @State var hasGuidedQuery: Bool = false
     
     @Binding var isShowingMic: Bool
@@ -51,6 +51,7 @@ struct MicRecordView: View {
                 VStack {
                     if hasGuidedQuery && !sttManager.isRecording {
                         Button(action: {
+                            
                             isShowingMic = false
                         }, label: {
                             RoundedRectangle(cornerRadius: 20)
@@ -72,12 +73,12 @@ struct MicRecordView: View {
         .onChange(of: sttManager.isFinal) { isFinal in
             if isFinal {
                 transcripts.append(sttManager.getPrevTranscript())
-                if hasAlertRecordEnded {
+//                if hasAlertRecordEnded {
                     query = transcripts.first ?? ""
 //                    let ttsString = "\(query)를 검색어로 설정합니다"
 //                    ttsManager.speak(text: ttsString)
                     hasGuidedQuery = true
-                }
+//                }
             }
         }
     }
@@ -86,19 +87,19 @@ struct MicRecordView: View {
         if sttManager.isRecording {
             self.sttManager.stopRecording()
             print("Recording stopped.")
-            if !sttManager.isRunningAudioSession {
-                //녹음 종료음
-                AudioServicesPlaySystemSound(1113)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    hasAlertRecordEnded = true
-                }
-            }
+//            if !sttManager.isRunningAudioSession {
+//                //녹음 종료음
+//                AudioServicesPlaySystemSound(1113)
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                    hasAlertRecordEnded = true
+//                }
+//            }
         } else {
-            if !sttManager.isRunningAudioSession && !sttManager.isRecording {
-                //녹음 시작음
-                AudioServicesPlaySystemSound(1113)
-                hasAlertRecordEnded = false
-            }
+//            if !sttManager.isRunningAudioSession && !sttManager.isRecording {
+//                //녹음 시작음
+//                AudioServicesPlaySystemSound(1113)
+//                hasAlertRecordEnded = false
+//            }
             self.transcripts.removeAll()
             self.sttManager.startRecording()
             print("Recording ...")
