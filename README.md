@@ -1,3 +1,15 @@
+# Guidance
+
+### You can seek swift code following steps below.
+1. Go to PathPal directory
+2. Since iOS code of PathPal follow MNVVM patter, you can check View, ViewModel, Model code in directories.
+3. Localized string keys for multilingualn is in en.lproj
+
+
+
+
+
+
 PathPal-iOS of Google Developer Student Clubs 2024 Solution Challenge
 
 
